@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join e-GramSeva</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+   <div class="auth-container">
+<div class="card">
+    <h2>Join e-GramSeva</h2>
+    <p class="subtitle">Empowering rural communities through digital service.</p>
+
+    <form action="/auth/signup" method="POST">
+        <div class="input-group">
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="John Doe" required>
+        </div>
+
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="name@example.com" required>
+        </div>
+
+        <div class="input-group">
+            <label>Create Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Register as</label>
+            <select name="role">
+                <option value="user">Citizen (Rural Resident)</option>
+                <option value="panchayat">Gram Panchayat Officer</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn-main">Create Account</button>
+    </form>
+
+    <p class="footer-text">
+        Already have an account? <a href="/login">Login here</a>
+    </p>
+</div>
+   </div>
+</body>
+</html>

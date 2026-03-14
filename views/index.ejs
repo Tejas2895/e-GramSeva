@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-GramSeva | Smart Village Platform</title>
+    
+    <style>
+        /* --- GLOBAL STYLE & FONTS --- */
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+        :root {
+            --leaf-green: #2D6A4F;
+            --soft-green: #D8F3DC;
+            --deep-blue: #1B4332;
+            --bg-cream: #F8FAF5;
+            --white: #ffffff;
+            --text-muted: #4b635a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-cream); color: var(--deep-blue); overflow-x: hidden; }
+
+        /* --- NAVIGATION --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 8%; background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; text-decoration: none; color: var(--deep-blue); }
+        .logo span { color: var(--leaf-green); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            display: grid; grid-template-columns: 1.2fr 0.8fr;
+            padding: 80px 10%; align-items: center; gap: 50px; min-height: 85vh;
+        }
+        .hero-left h1 { font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; font-weight: 800; margin-bottom: 25px; }
+        .highlight { color: var(--leaf-green); }
+        .hero-left p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px; border-left: 5px solid var(--leaf-green); padding-left: 20px; }
+
+        .btn-main { background: var(--leaf-green); color: white; padding: 15px 35px; border-radius: 100px; text-decoration: none; font-weight: 700; transition: 0.3s; display: inline-block; }
+        .btn-outline { border: 2px solid var(--leaf-green); color: var(--leaf-green); padding: 13px 35px; border-radius: 100px; text-decoration: none; font-weight: 700; margin-left: 15px; transition: 0.3s; display: inline-block; }
+        .btn-main:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(45,106,79,0.2); }
+
+        /* --- STATS SECTION --- */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; padding: 0 10%; margin-top: -50px; margin-bottom: 50px;
+        }
+        .stat-card {
+            background: var(--leaf-green); color: white; padding: 30px; 
+            border-radius: 30px; text-align: center; box-shadow: 0 15px 30px rgba(45,106,79,0.2);
+        }
+        .stat-card h2 { font-size: 2.5rem; font-weight: 800; }
+        .stat-card p { font-size: 0.9rem; opacity: 0.9; font-weight: 600; text-transform: uppercase; }
+
+        /* --- STYLED SECTION TITLES --- */
+        .section { padding: 80px 10%; text-align: center; }
+        .section-title { font-size: 2.6rem; font-weight: 800; margin-bottom: 10px; }
+        .section-subtitle { color: var(--text-muted); margin-bottom: 50px; font-size: 1.1rem; }
+
+        /* --- HOW IT WORKS --- */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        .step-card {
+            background: white; padding: 50px 35px; border-radius: 40px;
+            text-align: center; transition: all 0.4s ease;
+            border: 1px solid rgba(45, 106, 79, 0.05);
+            position: relative;
+        }
+        .step-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.06);
+            border-color: var(--leaf-green);
+        }
+        .step-badge {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            background: var(--leaf-green); color: white; padding: 5px 20px;
+            border-radius: 50px; font-size: 0.8rem; font-weight: 800;
+        }
+        .step-icon { font-size: 3.5rem; display: block; margin-bottom: 25px; transition: transform 0.3s ease; }
+        .step-card:hover .step-icon { transform: scale(1.15); }
+        .step-card h4 { font-size: 1.5rem; margin-bottom: 15px; color: var(--deep-blue); }
+        .step-card p { font-size: 1rem; color: var(--text-muted); line-height: 1.6; }
+
+        /* --- RESEARCH SECTION STYLES --- */
+        .research-container {
+            background: var(--white);
+            padding: 60px 8%;
+            border-radius: 50px;
+            margin: 40px 5%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+        .research-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        .research-box {
+            background: var(--bg-cream);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: left;
+            border-left: 5px solid var(--leaf-green);
+        }
+        .research-box h4 { color: var(--leaf-green); margin-bottom: 10px; font-size: 1.2rem; }
+        .research-box p { font-size: 0.95rem; color: var(--text-muted); }
+
+        .form-cta {
+            background: var(--deep-blue);
+            color: white;
+            padding: 40px;
+            border-radius: 35px;
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* --- SERVICES GRID --- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .service-card {
+            background: white; padding: 40px 30px; border-radius: 30px;
+            text-align: left; transition: all 0.4s ease;
+            border: 1px solid rgba(45, 106, 79, 0.1);
+        }
+        .service-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(45, 106, 79, 0.1);
+            border-color: var(--leaf-green);
+        }
+        .icon-box { font-size: 3.5rem; margin-bottom: 20px; display: block; }
+        .service-card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; }
+        .service-card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+        .card-status {
+            background: var(--soft-green); color: var(--leaf-green);
+            padding: 5px 15px; border-radius: 50px; font-size: 0.75rem; font-weight: 800;
+        }
+
+        /* --- FOOTER --- */
+        .footer { padding: 50px 8%; background: var(--deep-blue); color: var(--soft-green); text-align: center; border-radius: 60px 60px 0 0; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">🌿 e-<span>GramSeva</span></div>
+    <div class="nav-links">
+        <a href="/login" class="btn-outline" style="padding: 8px 25px; border-width: 1px;">Login</a>
+        <a href="/signup" class="btn-main" style="padding: 10px 25px;">Get Started</a>
+    </div>
+</nav>
+
+<header class="hero">
+    <div class="hero-left">
+        <h1>Smart Solutions for <br><span class="highlight">Smart Villages</span></h1>
+        <p>Digitizing rural governance. Report village issues digitally, track real-time progress, and build transparency together.</p>
+        <div class="hero-actions">
+            <a href="/signup" class="btn-main">Report an Issue</a>
+            <a href="/login" class="btn-outline">Admin Login</a>
+        </div>
+    </div>
+    <div class="hero-right">
+        <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" alt="Village" style="width: 100%; animation: float 6s infinite ease-in-out;">
+    </div>
+</header>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <h2><%= totalComplaints %></h2>
+        <p>Total Complaints</p>
+    </div>
+    <div class="stat-card">
+        <h2><%= resolvedComplaints %></h2>
+        <p>Resolved Issues</p>
+    </div>
+    <div class="stat-card">
+        <h2>24/7</h2>
+        <p>Citizen Support</p>
+    </div>
+    <div class="stat-card">
+        <h2>12+</h2>
+        <p>Villages Covered</p>
+    </div>
+</div>
+
+<section class="section">
+    <h2 class="section-title">How e-GramSeva Works</h2>
+    <p class="section-subtitle">Follow three simple steps to bring a change to your community.</p>
+    <div class="steps-grid">
+        <div class="step-card">
+            <span class="step-badge">STEP 01</span>
+            <span class="step-icon">📸</span>
+            <h4>Report Issue</h4>
+            <p>Snap a photo of the problem and upload it with a category and description.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-badge">STEP 02</span>
+            <span class="step-icon">📊</span>
+            <h4>Data Analysis</h4>
+            <p>Our intelligent system organizes reports for the Panchayat to review immediately.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-badge">STEP 03</span>
+            <span class="step-icon">✅</span>
+            <h4>Resolution</h4>
+            <p>Track live updates as the local government resolves the issue transparently.</p>
+        </div>
+    </div>
+</section>
+
+<section class="research-container">
+    <h2 class="section-title">Project Research & Insights</h2>
+    <p class="section-subtitle">Understanding the real problems through ground-level surveys.</p>
+    
+    <div class="research-card-grid">
+        <div class="research-box">
+            <h4>🔍 Problem Analysis</h4>
+            <p>Our survey found that 75% of villagers find it difficult to reach the Panchayat office for small complaints.</p>
+        </div>
+        <div class="research-box">
+            <h4>💡 The Solution</h4>
+            <p>90% of respondents agreed that a digital photo-based app would make reporting faster and more honest.</p>
+        </div>
+        <div class="research-box">
+            <h4>📈 Impact Goal</h4>
+            <p>We aim to reduce the average resolution time from 15 days to under 48 hours using this platform.</p>
+        </div>
+    </div>
+
+    <div class="form-cta">
+        <h3>Help Us Improve Our Village!</h3>
+        <p>We are still collecting data to make this platform better. Please take 2 minutes to fill out our research form.</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeTX5XJFNqXRT4S3bBzm0gjmBhlPQZNba7MjNqjwsjdpTVA6g/viewform?usp=header" target="_blank" class="btn-main" style="background: var(--white); color: var(--deep-blue); border-radius: 12px;">📝 Fill Research Form</a>
+    </div>
+</section>
+
+<section class="section" style="background: white; border-radius: 80px 80px 0 0;">
+    <h2 class="section-title">Common Issues Covered</h2>
+    <p class="section-subtitle">Our platform addresses key infrastructure needs for every ward.</p>
+    <div class="services-grid">
+        <div class="service-card">
+            <span class="icon-box">🛣️</span>
+            <h3>Road Damage</h3>
+            <p>Reporting potholes and broken pavements for safer travel.</p>
+            <span class="card-status">ACTIVE TRACKING</span>
+        </div>
+        <div class="service-card">
+            <span class="icon-box">💧</span>
+            <h3>Water Leakage</h3>
+            <p>Quick reporting to prevent water wastage and local flooding.</p>
+            <span class="card-status">PRIORITY</span>
+        </div>
+        <div class="service-card">
+            <span class="icon-box">💡</span>
+            <h3>Street Light</h3>
+            <p>Ensuring every street is well-lit for safety during the night.</p>
+            <span class="card-status">24/7 SUPPORT</span>
+        </div>
+        <div class="service-card">
+            <span class="icon-box">♻️</span>
+            <h3>Sanitation</h3>
+            <p>Keeping our village clean with regular waste management.</p>
+            <span class="card-status">DAILY UPDATES</span>
+        </div>
+        <div class="service-card">
+            <span class="icon-box">🚰</span>
+            <h3>Drinking Water</h3>
+            <p>Ensuring clean and safe water supply to every household.</p>
+            <span class="card-status">ESSENTIAL</span>
+        </div>
+        <div class="service-card">
+            <span class="icon-box">🏫</span>
+            <h3>Public Buildings</h3>
+            <p>Maintenance of schools, clinics, and community centers.</p>
+            <span class="card-status">MAINTENANCE</span>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>© 2026 e-GramSeva | Digital India Initiative 🇮🇳</p>
+</footer>
+
+</body>
+</html>
