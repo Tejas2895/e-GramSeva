@@ -27,10 +27,31 @@ const Complaint = require('./models/Complaint');
 const News = require('./models/News'); 
 
 // --- 3. DATABASE CONNECTION ---
-mongoose.connect('mongodb://localhost:27017/egramseva')
-    .then(() => console.log('Connected to MongoDB ✅'))
-    .catch(err => console.error('DB Connection Error:', err));
+// mongoose.connect('mongodb://localhost:27017/egramseva')
+//     .then(() => console.log('Connected to MongoDB ✅'))
+//     .catch(err => console.error('DB Connection Error:', err));
+// 1. Define your connection string (Replace <db_password> with your actual password)
+// --- 3. DATABASE CONNECTION ---
+// Password mein '@' ki jagah '%40' use kiya hai
+const uri = "mongodb+srv://tejastulaskar0_db_user:Tejas%401234@cluster0.gurjxzf.mongodb.net/egramseva?retryWrites=true&w=majority&appName=Cluster0";
 
+mongoose.connect(uri)
+  .then(async () => {
+    console.log("Successfully connected to MongoDB Atlas! ✅");
+
+    // Ek test user bana kar dekhte hain
+    // const testUser = new User({
+    //     name: "Tejas Test",
+    //     email: "test@example.com",
+    //     password: "password123",
+    //     role: "user"
+    // });
+    // await testUser.save();
+    // console.log("Test user saved to database! 🚀");
+})
+  .catch((error) => {
+    console.error("❌ Connection error detail:", error.message);
+  });
 // --- 4. MULTER SETUP ---
 const storage = multer.diskStorage({
     destination: './public/uploads/',
