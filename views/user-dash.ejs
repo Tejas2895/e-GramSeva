@@ -12,90 +12,61 @@
         :root {
             --primary: #2D6A4F;
             --primary-light: #D8F3DC;
-            --secondary: #1e40af;
             --accent: #FFB703;
             --bg: #f8fafc;
             --white: #ffffff;
             --text-main: #1e293b;
             --text-sub: #64748b;
             --danger: #e63946;
-            --shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: row; }
 
-        /* Sidebar Navigation */
+        /* --- SIDEBAR --- */
         .sidebar {
             width: 280px; background: var(--white); border-right: 1px solid #e2e8f0;
             display: flex; flex-direction: column; padding: 30px 20px; position: fixed; height: 100vh;
+            z-index: 100;
         }
-        .logo-box { font-size: 1.6rem; font-weight: 800; margin-bottom: 40px; color: var(--primary); letter-spacing: -1px; }
-        
-        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .logo-box { font-size: 1.6rem; font-weight: 800; margin-bottom: 30px; color: var(--primary); }
+        .logo-box span { color: var(--accent); }
+
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
         .nav-item { 
-            display: flex; align-items: center; gap: 12px; padding: 14px 18px; 
+            display: flex; align-items: center; gap: 12px; padding: 12px 18px; 
             text-decoration: none; color: var(--text-sub); font-weight: 600;
             border-radius: 14px; transition: 0.3s; cursor: pointer;
         }
-        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .nav-item.active, .nav-item:hover { background: var(--primary-light); color: var(--primary); }
 
-        .sidebar-news-card {
-            background: #fffcf5; padding: 15px; border-radius: 18px; 
-            border-left: 5px solid var(--accent); margin: 20px 0; font-size: 14px;
-            height: auto; 
-            max-height: 380px; 
-            overflow-y: auto;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+        /* --- MAIN WRAPPER --- */
+        .main-wrapper { margin-left: 280px; width: calc(100% - 280px); padding: 40px; transition: 0.3s; }
+
+        /* --- MOBILE RESPONSIVE --- */
+        @media (max-width: 992px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 1px solid #e2e8f0; }
+            .main-wrapper { margin-left: 0; width: 100%; padding: 20px; }
+            .sidebar-news-card { display: none; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .content-grid { grid-template-columns: 1fr; }
         }
-        .sidebar-news-card::-webkit-scrollbar { width: 4px; }
-        .sidebar-news-card::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
 
-        .ai-label { font-size: 10px; font-weight: 800; display: block; margin-top: 4px; }
-        .logout-btn { margin-top: auto; color: var(--danger); border: 1.5px solid #fee2e2; }
-        .main-wrapper { margin-left: 280px; width: calc(100% - 280px); padding: 40px; }
-
-        .card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid #f1f5f9; margin-bottom: 25px; }
-        .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        
+        /* --- CARDS & FORMS --- */
+        .card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #f1f5f9; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: var(--white); padding: 18px; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; }
-        .stat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         
         .content-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--text-sub); }
-        .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; }
+        .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
-        /* Voice Mic Button Style */
-        .btn-voice { 
-            background: #f8fafc; border: 1.5px solid #e2e8f0; padding: 8px 15px; 
-            border-radius: 10px; cursor: pointer; display: flex; align-items: center; 
-            gap: 8px; margin-top: 10px; transition: 0.2s; font-size: 12px; font-weight: 600;
-        }
-        .btn-voice:hover { border-color: var(--primary); color: var(--primary); }
-        .recording { background: #fef2f2; border-color: var(--danger); color: var(--danger); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
-        .gps-container { margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 14px; border: 1.5px dashed #cbd5e1; text-align: center; }
-        .btn-gps { background: white; border: 1.5px solid var(--primary); color: var(--primary); padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-        .gps-success { border-color: var(--primary); background: #f0fdf4; border-style: solid; }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { text-align: left; padding: 10px 15px; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }
-        td { padding: 15px; background: #fff; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .status-pill { padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .pending { background: #fff7ed; color: #c2410c; }
-        .in-progress { background: #eff6ff; color: #1e40af; }
-        .resolved { background: #f0fdf4; color: #166534; }
-        .rejected { background: #fef2f2; color: #dc2626; }
-
-        .drawer { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: white; z-index: 1001; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
+        /* Drawer for Profile */
+        .drawer { position: fixed; right: -450px; top: 0; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 1001; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); display: none; z-index: 1000; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
-        .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; }
-    
     </style>
 </head>
 <body>
@@ -103,246 +74,155 @@
     <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
 
     <aside class="sidebar">
-        <div id="google_translate_element"></div>
         <div class="logo-box">🌿 e-Gram<span>Seva</span></div>
         <nav class="nav-menu">
-            <a href="#" class="nav-item active">🏠 Home Dashboard</a>
-            
-            <div class="sidebar-news-card">
-                <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--primary);">📢 Village Updates</h4>
-                <div class="news-list">
+            <a href="/user/dashboard" class="nav-item active">🏠 Dashboard</a>
+            <div class="sidebar-news-card" style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 15px 0;">
+                <h4 style="font-size: 14px; color: var(--primary);">📢 Village Updates</h4>
+                <div style="max-height: 200px; overflow-y: auto; font-size: 12px; margin-top: 10px;">
                     <% if(news && news.length > 0) { %>
-                        <% news.reverse().forEach(item => { %>
-                            <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px;">
-                                <small style="font-weight: 800; color: var(--primary); text-transform: uppercase; font-size: 10px;"><%= item.category %></small>
-                                <p style="font-size: 13px; font-weight: 700; margin: 3px 0; color: var(--text-main);"><%= item.title %></p>
-                                <p style="font-size: 12px; color: var(--text-sub); line-height: 1.4; word-wrap: break-word;">
-                                    <%= item.content %>
-                                </p>
-                                <p style="font-size: 9px; color: #aaa; margin-top: 4px;">
-                                    <%= new Date(item.createdAt).toLocaleDateString() %>
-                                </p>
-                            </div>
+                        <% news.forEach(item => { %>
+                            <p><strong><%= item.title %>:</strong> <%= item.content %></p><hr style="opacity: 0.1; margin: 5px 0;">
                         <% }) %>
-                    <% } else { %>
-                        <p style="font-size: 12px; color: #999; text-align: center;">No updates available today.</p>
-                    <% } %>
+                    <% } else { %> <p>No updates available.</p> <% } %>
                 </div>
             </div>
-
-            <a href="#" class="nav-item">📜 My Complaints</a>
-            <div onclick="openDrawer()" class="nav-item">👤 Profile Settings</div>
-            <a href="/logout" class="nav-item logout-btn">🚪 Logout Session</a>
+            <a onclick="openDrawer()" class="nav-item">👤 Profile Settings</a>
+            <a href="/logout" class="nav-item" style="color: var(--danger);">🚪 Logout Session</a>
         </nav>
     </aside>
 
     <main class="main-wrapper">
-        <header class="welcome-header">
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <img src="<%= user.profilePic ? user.profilePic : 'https://via.placeholder.com/100' %>" 
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="<%= user.profilePic ? user.profilePic : 'https://via.placeholder.com/150' %>" 
                      style="width: 60px; height: 60px; border-radius: 15px; object-fit: cover; border: 2px solid var(--primary-light);">
                 <div>
-                    <h1 style="font-size: 24px;">Namaste, <%= user.name %>!</h1>
-                    <p style="color: var(--text-sub); font-size: 14px;">🏠 <%= user.address %></p>
+                    <h2>Namaste, <%= user.name %>!</h2>
+                    <p style="color: var(--text-sub); font-size: 13px;">📍 <%= user.address %></p>
                 </div>
             </div>
-            <button onclick="openDrawer()" class="nav-item" style="border: 1px solid #e2e8f0; background: white;">Edit Profile</button>
+            <button onclick="openDrawer()" class="btn-submit" style="width: auto; padding: 10px 20px; margin: 0;">Edit Profile</button>
         </header>
 
         <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #fff7ed; color: #ea580c;">⏳</div>
-                <div><p style="font-size: 12px; color: var(--text-sub);">Pending</p>
-                <p style="font-weight: 800;"><%= complaints.filter(c => c.status === 'Pending').length %></p></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #eff6ff; color: #2563eb;">🔄</div>
-                <div><p style="font-size: 12px; color: var(--text-sub);">In-Progress</p>
-                <p style="font-weight: 800;"><%= complaints.filter(c => c.status === 'In-Progress').length %></p></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #f0fdf4; color: #16a34a;">✅</div>
-                <div><p style="font-size: 12px; color: var(--text-sub);">Resolved</p>
-                <p style="font-weight: 800;"><%= complaints.filter(c => c.status === 'Resolved').length %></p></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #fef2f2; color: #dc2626;">❌</div>
-                <div><p style="font-size: 12px; color: var(--text-sub);">Rejected</p>
-                <p style="font-weight: 800;"><%= complaints.filter(c => c.status === 'Rejected').length %></p></div>
-            </div>
+            <div class="stat-box">⏳ <div><p style="font-size: 11px;">Pending</p><b><%= complaints.filter(c => c.status === 'Pending').length %></b></div></div>
+            <div class="stat-box">🔄 <div><p style="font-size: 11px;">In-Progress</p><b><%= complaints.filter(c => c.status === 'In-Progress').length %></b></div></div>
+            <div class="stat-box">✅ <div><p style="font-size: 11px;">Resolved</p><b><%= complaints.filter(c => c.status === 'Resolved').length %></b></div></div>
+            <div class="stat-box">❌ <div><p style="font-size: 11px;">Rejected</p><b><%= complaints.filter(c => c.status === 'Rejected').length %></b></div></div>
         </div>
 
         <div class="content-grid">
             <div class="card">
-                <h3 style="margin-bottom: 20px;">📝 Raise New Issue</h3>
+                <h3>📝 Raise New Issue</h3>
                 <form action="/complaints/add" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label>Issue Category</label>
-                        <select name="category" class="input-field">
-                            <option>Road Damage</option>
-                            <option>Water Leakage</option>
-                            <option>Street Light</option>
-                            <option>Sanitation</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Explain the problem</label>
-                        <textarea name="description" id="complaint_desc" rows="4" class="input-field" placeholder="Mention ward no, landmark..."></textarea>
-                        
-                        <button type="button" id="start-voice-btn" class="btn-voice">
-                            <span id="mic-icon">🎤</span> <span id="voice-status">Speak</span>
-                        </button>
+                    <label style="font-size: 12px; font-weight: 700;">Issue Category</label>
+                    <select name="category" class="input-field">
+                        <option>Road Damage</option>
+                        <option>Water Leakage</option>
+                        <option>Street Light</option>
+                        <option>Sanitation</option>
+                    </select>
+
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Explain the problem</label>
+                    <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Mention ward no, landmark..."></textarea>
+                    
+                    <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak (Marathi/Hindi)</button>
+
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1.5px dashed #cbd5e1; text-align: center;">
+                        <input type="hidden" name="latitude" id="lat">
+                        <input type="hidden" name="longitude" id="lon">
+                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="border: 1px solid var(--primary); background: white; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 700;">📍 Tag Current Location</button>
                     </div>
 
-                    <input type="hidden" name="latitude" id="lat">
-                    <input type="hidden" name="longitude" id="lon">
-                    <div class="gps-container" id="gpsBox">
-                        <p id="gps-text" style="font-size: 12px; color: var(--text-sub); margin-bottom: 10px;">Tagging location helps us reach the spot faster.</p>
-                        <button type="button" onclick="getGPSLocation()" class="btn-gps" id="gpsBtn">📍 Tag Current Location</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Upload Photo Evidence</label>
-                        <input type="file" name="complaintImage" class="input-field" style="padding: 10px;">
-                    </div>
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Upload Photo Evidence</label>
+                    <input type="file" name="complaintImage" class="input-field">
+                    
                     <button type="submit" class="btn-submit">Submit Report</button>
                 </form>
             </div>
 
-            <div class="main-col">
-                <div class="card">
-                    <h3 style="margin-bottom: 20px;">📊 Status Analytics</h3>
-                    <div style="height: 200px;">
-                        <canvas id="userStatusChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="margin-bottom: 20px;">📋 Your Recent Activity</h3>
-                    <div style="overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Category & AI Insight</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% complaints.forEach(c => { %>
-                                <tr>
-                                    <td><%= c.createdAt.toDateString() %></td>
-                                    <td>
-                                        <strong><%= c.category %></strong>
-                                        <% 
-                                            let urgentWords = ["broken", "leakage", "emergency", "flood", "dark", "accident", "damage", "urgent", "kharab", "tuti"];
-                                            let isHigh = urgentWords.some(word => (c.description || "").toLowerCase().includes(word)) || c.category === "Water Leakage";
-                                        %>
-                                        <span class="ai-label" style="color: <%= isHigh ? '#dc2626' : '#64748b' %>;">
-                                            🤖 AI Priority: <%= isHigh ? 'High' : 'Normal' %>
-                                        </span>
-                                    </td>
-                                    <td><span class="status-pill <%= c.status.toLowerCase().replace(' ', '-') %>"><%= c.status %></span></td>
-                                </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="card" style="overflow-x: auto;">
+                <h3>📋 Recent Activity</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead>
+                        <tr style="text-align: left; font-size: 11px; color: var(--text-sub); text-transform: uppercase;">
+                            <th style="padding: 10px;">Date</th>
+                            <th style="padding: 10px;">Category & AI</th>
+                            <th style="padding: 10px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% complaints.forEach(c => { %>
+                            <tr style="border-top: 1px solid #f1f5f9; font-size: 14px;">
+                                <td style="padding: 10px;"><%= c.createdAt.toDateString() %></td>
+                                <td style="padding: 10px;">
+                                    <b><%= c.category %></b><br>
+                                    <small style="color: <%= c.aiPriority === 'High' ? '#dc2626' : '#64748b' %>; font-weight: 800;">
+                                        🤖 AI: <%= c.aiPriority %>
+                                    </small>
+                                </td>
+                                <td style="padding: 10px;"><span style="padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: #f1f5f9;"><%= c.status %></span></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
 
     <div class="drawer" id="profileDrawer">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
             <h3>👤 Edit Profile</h3>
-            <button onclick="closeDrawer()" style="background: none; border: none; font-size: 28px; cursor: pointer;">&times;</button>
+            <button onclick="closeDrawer()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
         </div>
-        <form action="/user/update" method="POST" enctype="multipart/form-data">
-            <div class="form-group"><label>Full Name</label><input type="text" name="name" value="<%= user.name %>" class="input-field"></div>
-            <div class="form-group"><label>Mobile Number</label><input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field"></div>
-            <div class="form-group"><label>Address</label><textarea name="address" rows="3" class="input-field"><%= user.address %></textarea></div>
-            <div class="form-group"><label>Profile Photo</label><input type="file" name="profilePic" class="input-field"></div>
+        <form action="/user/update" method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: 700;">Full Name</label>
+                <input type="text" name="name" value="<%= user.name %>" class="input-field">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: 700;">Mobile</label>
+                <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: 700;">Address</label>
+                <textarea name="address" class="input-field" rows="2"><%= user.address %></textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: 700;">New Profile Pic</label>
+                <input type="file" name="profilePic" class="input-field">
+            </div>
             <button type="submit" class="btn-submit">Save Changes</button>
         </form>
     </div>
 
     <script>
-        // Profile Drawer Logic
         function openDrawer() { document.getElementById('profileDrawer').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('profileDrawer').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
 
-        // GPS Location Logic
         function getGPSLocation() {
-            const text = document.getElementById('gps-text');
-            const btn = document.getElementById('gpsBtn');
-            const box = document.getElementById('gpsBox');
             if (navigator.geolocation) {
-                text.innerHTML = "Requesting Access...";
                 navigator.geolocation.getCurrentPosition((position) => {
                     document.getElementById('lat').value = position.coords.latitude;
                     document.getElementById('lon').value = position.coords.longitude;
-                    text.innerHTML = "Location Secured! ✅";
-                    text.style.color = "var(--primary)";
-                    btn.innerHTML = "Captured";
-                    box.classList.add('gps-success');
+                    document.getElementById('gpsBtn').innerText = "✅ Location Secured";
+                    document.getElementById('gpsBtn').style.background = "#D8F3DC";
                 });
             }
         }
 
-        // --- AI VOICE-TO-TEXT LOGIC START ---
-        const voiceBtn = document.getElementById('start-voice-btn');
-        const descTextarea = document.getElementById('complaint_desc');
-        const voiceStatus = document.getElementById('voice-status');
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'mr-IN'; // Multi-language support (Marathi/Hindi)
-            recognition.interimResults = false;
-
-            voiceBtn.addEventListener('click', () => {
-                recognition.start();
-                voiceStatus.innerText = "Listening... ";
-                voiceBtn.classList.add('recording');
-            });
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                descTextarea.value += transcript + " ";
-                voiceStatus.innerText = "Speak";
-                voiceBtn.classList.remove('recording');
-            };
-
-            recognition.onerror = () => {
-                voiceStatus.innerText = "Error! Try Again.";
-                voiceBtn.classList.remove('recording');
-            };
-        } else {
-            voiceStatus.innerText = "Speech not supported in this browser.";
-        }
-        // --- AI VOICE-TO-TEXT LOGIC END ---
-
-        // Chart Analytics
-        const complaintsData = <%- JSON.stringify(complaints) %>;
-        const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
-        complaintsData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });
-
-        const ctx = document.getElementById('userStatusChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(counts),
-                datasets: [{
-                    data: Object.values(counts),
-                    backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'],
-                    borderWidth: 0
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
-        });
+        // Voice Recognition Fix
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'mr-IN'; // Marathi support
+        document.getElementById('start-voice-btn').onclick = () => { 
+            recognition.start(); 
+            document.getElementById('start-voice-btn').innerText = "Listening..."; 
+        };
+        recognition.onresult = (e) => { 
+            document.getElementById('complaint_desc').value += e.results[0][0].transcript + " ";
+            document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak";
+        };
     </script>
-    
 </body>
 </html>

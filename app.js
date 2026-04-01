@@ -3,65 +3,44 @@ const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const session = require('express-session');
-const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
-const sharp = require('sharp');
-sharp.cache(false);
-const app = express();
 const similarity = require('string-similarity');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- 1. EMAIL TRANSPORTER ---
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'tejastulaskar0@gmail.com',
-        pass: 'pgbk unwg dwfk fzux' 
-    }
-});
-
-// --- 2. MODELS ---
+// --- 1. MODELS ---
 const User = require('./models/User');
 const Complaint = require('./models/Complaint');
 const News = require('./models/News'); 
 
-// --- 3. DATABASE CONNECTION ---
-// mongoose.connect('mongodb://localhost:27017/egramseva')
-//     .then(() => console.log('Connected to MongoDB ✅'))
-//     .catch(err => console.error('DB Connection Error:', err));
-// 1. Define your connection string (Replace <db_password> with your actual password)
-// --- 3. DATABASE CONNECTION ---
-// Password mein '@' ki jagah '%40' use kiya hai
-const uri = "mongodb+srv://tejastulaskar0_db_user:Tejas%401234@cluster0.gurjxzf.mongodb.net/egramseva?retryWrites=true&w=majority&appName=Cluster0";
+// --- 2. CLOUDINARY CONFIG ---
+cloudinary.config({
+  cloud_name: 'dh8mv8nlo',
+  api_key: '195988474883287',
+  api_secret: '8eNbndWlOFyCvsgl5PjHC2F42gA'
+});
 
-mongoose.connect(uri)
-  .then(async () => {
-    console.log("Successfully connected to MongoDB Atlas! ✅");
-
-    // Ek test user bana kar dekhte hain
-    // const testUser = new User({
-    //     name: "Tejas Test",
-    //     email: "test@example.com",
-    //     password: "password123",
-    //     role: "user"
-    // });
-    // await testUser.save();
-    // console.log("Test user saved to database! 🚀");
-})
-  .catch((error) => {
-    console.error("❌ Connection error detail:", error.message);
-  });
-// --- 4. MULTER SETUP ---
-const storage = multer.diskStorage({
-    destination: './public/uploads/',
-    filename: (req, file, cb) => {
-        cb(null, 'temp-' + Date.now() + path.extname(file.originalname));
-    }
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'eGramSeva_Photos', 
+    allowedFormats: ['jpg', 'png', 'jpeg'],
+  },
 });
 const upload = multer({ storage: storage });
 
-// --- 5. MIDDLEWARE ---
+// --- 3. DATABASE CONNECTION ---
+const uri = "mongodb+srv://tejastulaskar0_db_user:Tejas%401234@cluster0.gurjxzf.mongodb.net/egramseva?retryWrites=true&w=majority&appName=Cluster0";
+
+mongoose.connect(uri)
+  .then(() => console.log("Successfully connected to MongoDB Atlas! ✅"))
+  .catch((error) => console.error("❌ Connection error:", error.message));
+
+// --- 4. MIDDLEWARE ---
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.json());
@@ -72,23 +51,18 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// --- 6. UTILS ---
-const safeDelete = (imagePath) => {
-    if (!imagePath) return;
-    const fullPath = path.join(__dirname, 'public', imagePath);
-    try {
-        if (fs.existsSync(fullPath)) {
-            fs.unlinkSync(fullPath);
-            console.log(`Deleted Temp: ${fullPath}`);
-        }
-    } catch (err) {
-        console.error(`File System Error: ${err.message}`);
+// --- 5. EMAIL TRANSPORTER ---
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'tejastulaskar0@gmail.com',
+        pass: 'pgbk unwg dwfk fzux' 
     }
-};
+});
 
-// --- 7. ROUTES ---
+// --- 6. ROUTES ---
 
-// A. AUTHENTICATION
+// A. LANDING PAGE
 app.get('/', async (req, res) => {
     try {
         const totalComplaints = await Complaint.countDocuments();
@@ -140,52 +114,38 @@ app.get('/panchayat/dashboard', async (req, res) => {
     } catch (err) { res.status(500).send("Panchayat Dashboard Error"); }
 });
 
-// C. COMPLAINT MANAGEMENT (FIXED GPS & NESTING)
-// --- F. COMPLAINT MANAGEMENT (FIXED GPS & SHARP CACHE) ---
+// C. COMPLAINT MANAGEMENT (FIXED FOR CLOUDINARY)
 app.post('/complaints/add', upload.single('complaintImage'), async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     
     try {
         const { category, description } = req.body;
-        let imageUrl = null;
+        let imageUrl = req.file ? req.file.path : null; // Cloudinary URL directly
 
-        // --- ML TASK 1: DUPLICATE DETECTION ---
+        // ML: DUPLICATE DETECTION
         const existingComplaints = await Complaint.find({ status: 'Pending', category: category });
         let isDuplicate = false;
         if (existingComplaints.length > 0) {
             const descriptions = existingComplaints.map(c => c.description);
             const matches = similarity.findBestMatch(description, descriptions);
-            if (matches.bestMatch.rating > 0.7) { // 70% matching
-                isDuplicate = true;
-            }
+            if (matches.bestMatch.rating > 0.7) isDuplicate = true;
         }
 
-        // --- ML TASK 2: PRIORITY SCORING (RANDOM FOREST LOGIC) ---
+        // ML: PRIORITY SCORING
         let aiPriority = "Normal";
         const urgentWords = ["broken", "leakage", "emergency", "flood", "dark", "accident", "danger", "urgent", "leak"];
         const descLower = description.toLowerCase();
-        if (urgentWords.some(word => descLower.includes(word)) || category === "Water Leakage") {
-            aiPriority = "High";
-        }
-
-        // --- IMAGE PROCESSING ---
-        if (req.file) {
-            const filename = 'comp-' + Date.now() + '.jpg';
-            const outputPath = path.join(__dirname, 'public/uploads/', filename);
-            await sharp(req.file.path).resize(800, 600, { fit: 'inside' }).jpeg({ quality: 70 }).toFile(outputPath);
-            safeDelete('/uploads/' + req.file.filename);
-            imageUrl = filename;
-        }
+        if (urgentWords.some(word => descLower.includes(word)) || category === "Water Leakage") aiPriority = "High";
 
         const newComp = new Complaint({
             citizen: req.session.userId,
             category,
             description,
-            imageUrl,
+            imageUrl, 
             latitude: req.body.latitude ? parseFloat(req.body.latitude) : null,
             longitude: req.body.longitude ? parseFloat(req.body.longitude) : null,
-            aiPriority: aiPriority, // New Field
-            isDuplicate: isDuplicate // New Field
+            aiPriority: aiPriority,
+            isDuplicate: isDuplicate
         });
 
         await newComp.save();
@@ -194,6 +154,8 @@ app.post('/complaints/add', upload.single('complaintImage'), async (req, res) =>
         res.status(500).send("Error: " + err.message); 
     }
 });
+
+// D. ADMIN ACTIONS
 app.post('/complaints/update/:id', async (req, res) => {
     try {
         const { status } = req.body;
@@ -216,14 +178,12 @@ app.post('/complaints/update/:id', async (req, res) => {
 
 app.post('/complaints/delete/:id', async (req, res) => {
     try {
-        const complaint = await Complaint.findById(req.params.id);
-        if (complaint.imageUrl) safeDelete('/uploads/' + complaint.imageUrl);
         await Complaint.findByIdAndDelete(req.params.id);
         res.redirect('/panchayat/dashboard');
     } catch (err) { res.status(500).send("Delete failed"); }
 });
 
-// D. PROFILE & NEWS
+// E. PROFILE UPDATE (FIXED FOR CLOUDINARY)
 app.post('/user/update', upload.single('profilePic'), async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
@@ -231,33 +191,18 @@ app.post('/user/update', upload.single('profilePic'), async (req, res) => {
         let updateData = { name, mobile, address, panchayatName, designation };
 
         if (req.file) {
-            const filename = 'res-' + Date.now() + '.jpg';
-            const outputPath = path.join(__dirname, 'public/uploads/', filename);
-
-            // 🛠️ YAHAN SE .cache(false) HATA DIYA HAI
-            await sharp(req.file.path)
-                .resize(500, 500, { fit: 'cover' })
-                .jpeg({ quality: 80 })
-                .toFile(outputPath);
-
-            const currentUser = await User.findById(req.session.userId);
-            if (currentUser && currentUser.profilePic) safeDelete(currentUser.profilePic);
-
-            safeDelete('/uploads/' + req.file.filename); 
-            updateData.profilePic = '/uploads/' + filename;
+            updateData.profilePic = req.file.path; // Cloudinary URL
         }
 
         const updatedUser = await User.findByIdAndUpdate(req.session.userId, updateData, { new: true });
         req.session.user = updatedUser;
         res.redirect(updatedUser.role === 'panchayat' ? '/panchayat/dashboard' : '/user/dashboard');
     } catch (err) { 
-        console.error(err);
         res.status(500).send("Update Error: " + err.message); 
     }
 });
 
 app.post('/admin/post-news', async (req, res) => {
-    if (!req.session.userId || req.session.role !== 'panchayat') return res.status(403).send("Unauthorized");
     try {
         const newNews = new News(req.body);
         await newNews.save();
@@ -265,16 +210,6 @@ app.post('/admin/post-news', async (req, res) => {
     } catch (err) { res.status(500).send("News Failed"); }
 });
 
-app.post('/admin/delete-news/:id', async (req, res) => {
-    try {
-        await News.findByIdAndDelete(req.params.id);
-        res.redirect('/panchayat/dashboard');
-    } catch (err) { res.status(500).send("Delete failed"); }
-});
-
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
-// app.listen(3000, () => console.log('🚀 e-GramSeva running on http://localhost:3000'));
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));

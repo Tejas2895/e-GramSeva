@@ -1,12 +1,14 @@
 /* --- GOOGLE FONTS IMPORT --- */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;700&display=swap');
 
+
 /* Mobile devices (Phones) */
 @media (max-width: 600px) {
-  .container {
-    width: 100%;  /* Full width on mobile */
-    padding: 10px;
-  }
+ .container {
+    width: 90%; /* Mobile par side mein thodi jagah chhodega */
+    max-width: 1200px; /* Laptop par 1200px se bada nahi hoga */
+    margin: 0 auto; /* Center mein rahega */
+}
   .sidebar {
     display: none; /* Mobile par sidebar hata do ya niche shift kar do */
   }
@@ -95,7 +97,17 @@ body {
     z-index: 1000;
     border-bottom: 1px solid rgba(0,0,0,0.05);
 }
-
+@media (max-width: 600px) {
+    nav {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    nav a {
+        padding: 10px;
+        display: block; /* Poori line lega button */
+    }
+}
 .logo { 
     font-size: 1.6rem; 
     font-weight: 800; 
@@ -477,7 +489,17 @@ td {
     text-transform: uppercase;
 }
 
+@media (max-width: 768px) {
+    .dashboard-cards, .form-container {
+        display: flex;
+        flex-direction: column; /* Line se niche shift kar dega */
+    }
 
+    .card {
+        width: 100% !important; /* Card poori screen ki width lega */
+        margin-bottom: 20px;
+    }
+}
 
 
 
