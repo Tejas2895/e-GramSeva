@@ -18,54 +18,62 @@
             --text-main: #1e293b;
             --text-sub: #64748b;
             --danger: #e63946;
+            --nav-height: 70px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: row; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; }
 
-        /* --- SIDEBAR --- */
+        /* --- 1. FIXED TOP NAVBAR --- */
+        .top-navbar {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--white); display: flex; justify-content: space-between;
+            align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100;
+        }
+        .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+
+        .user-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .user-nav-info img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
+
+        /* --- 2. FIXED SIDEBAR --- */
         .sidebar {
-            width: 280px; background: var(--white); border-right: 1px solid #e2e8f0;
-            display: flex; flex-direction: column; padding: 30px 20px; position: fixed; height: 100vh;
-            z-index: 100;
+            width: 260px; background: var(--white); border-right: 1px solid #e2e8f0;
+            display: flex; flex-direction: column; padding: 20px; position: fixed;
+            height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0;
+            z-index: 1000; transition: 0.3s;
         }
-        .logo-box { font-size: 1.6rem; font-weight: 800; margin-bottom: 30px; color: var(--primary); }
-        .logo-box span { color: var(--accent); }
 
-        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
-        .nav-item { 
-            display: flex; align-items: center; gap: 12px; padding: 12px 18px; 
-            text-decoration: none; color: var(--text-sub); font-weight: 600;
-            border-radius: 14px; transition: 0.3s; cursor: pointer;
+        /* --- 3. MAIN CONTENT (Scrollable) --- */
+        .main-wrapper {
+            margin-left: 260px; padding: 30px; padding-top: calc(var(--nav-height) + 30px);
+            width: calc(100% - 260px); min-height: 100vh;
         }
+
+        /* Responsive Layout */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); } /* Mobile pe sidebar chhupa diya */
+            .main-wrapper { margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; }
+            .content-grid { grid-template-columns: 1fr !important; }
+            .stats-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+
+        /* UI Components */
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-decoration: none; color: var(--text-sub); font-weight: 600; border-radius: 14px; transition: 0.3s; cursor: pointer; }
         .nav-item.active, .nav-item:hover { background: var(--primary-light); color: var(--primary); }
 
-        /* --- MAIN WRAPPER --- */
-        .main-wrapper { margin-left: 280px; width: calc(100% - 280px); padding: 40px; transition: 0.3s; }
-
-        /* --- MOBILE RESPONSIVE --- */
-        @media (max-width: 992px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; border-right: none; border-bottom: 1px solid #e2e8f0; }
-            .main-wrapper { margin-left: 0; width: 100%; padding: 20px; }
-            .sidebar-news-card { display: none; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .content-grid { grid-template-columns: 1fr; }
-        }
-
-        /* --- CARDS & UI --- */
         .card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #f1f5f9; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: var(--white); padding: 18px; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; }
         
-        .content-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 30px; }
         .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; }
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
-        /* Drawer */
-        .drawer { position: fixed; right: -450px; top: 0; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 1001; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        .drawer { position: fixed; right: -450px; top: 0; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; backdrop-filter: blur(4px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1500; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
     </style>
 </head>
@@ -73,38 +81,33 @@
 
     <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
 
+    <nav class="top-navbar">
+        <a href="/" class="nav-logo">🌿 e-Gram<span>Seva</span></a>
+        <div class="user-nav-info" onclick="openDrawer()">
+            <span style="font-weight: 700; font-size: 14px; color: var(--text-main);"><%= user.name %></span>
+            <img src="<%= user.profilePic ? user.profilePic : 'https://via.placeholder.com/150' %>">
+        </div>
+    </nav>
+
     <aside class="sidebar">
-        <div class="logo-box">🌿 e-Gram<span>Seva</span></div>
         <nav class="nav-menu">
-            <a href="/user/dashboard" class="nav-item active">🏠 Dashboard</a>
-            <div class="sidebar-news-card" style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 15px 0;">
-                <h4 style="font-size: 14px; color: var(--primary);">📢 Village Updates</h4>
-                <div style="max-height: 200px; overflow-y: auto; font-size: 12px; margin-top: 10px;">
+            <a href="/user/dashboard" class="nav-item active">🏠 Dashboard Home</a>
+            <div style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 15px 0;">
+                <h4 style="font-size: 13px; color: var(--primary);">📢 Village News</h4>
+                <div style="max-height: 120px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
                     <% if(news && news.length > 0) { %>
                         <% news.forEach(item => { %>
-                            <p><strong><%= item.title %>:</strong> <%= item.content %></p><hr style="opacity: 0.1; margin: 5px 0;">
+                            <p><strong><%= item.title %></strong></p><hr style="opacity: 0.1; margin: 5px 0;">
                         <% }) %>
                     <% } else { %> <p>No updates.</p> <% } %>
                 </div>
             </div>
             <a onclick="openDrawer()" class="nav-item">👤 Profile Settings</a>
-            <a href="/logout" class="nav-item" style="color: var(--danger);">🚪 Logout</a>
+            <a href="/logout" class="nav-item" style="color: var(--danger);">🚪 Logout Session</a>
         </nav>
     </aside>
 
     <main class="main-wrapper">
-        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <img src="<%= user.profilePic ? user.profilePic : 'https://via.placeholder.com/150' %>" 
-                     style="width: 60px; height: 60px; border-radius: 15px; object-fit: cover; border: 2px solid var(--primary-light);">
-                <div>
-                    <h2>Namaste, <%= user.name %>!</h2>
-                    <p style="color: var(--text-sub); font-size: 13px;">📍 <%= user.address %></p>
-                </div>
-            </div>
-            <button onclick="openDrawer()" class="btn-submit" style="width: auto; padding: 10px 20px; margin: 0;">Edit Profile</button>
-        </header>
-
         <div class="stats-grid">
             <div class="stat-box">⏳ <div><p style="font-size: 11px;">Pending</p><b><%= complaints.filter(c => c.status === 'Pending').length %></b></div></div>
             <div class="stat-box">🔄 <div><p style="font-size: 11px;">In-Progress</p><b><%= complaints.filter(c => c.status === 'In-Progress').length %></b></div></div>
@@ -116,23 +119,19 @@
             <div class="card">
                 <h3>📝 Raise New Issue</h3>
                 <form action="/complaints/add" method="POST" enctype="multipart/form-data">
-                    <label style="font-size: 12px; font-weight: 700;">Category</label>
+                    <label style="font-size: 12px; font-weight: 700;">Issue Category</label>
                     <select name="category" class="input-field">
-                        <option>Road Damage</option>
-                        <option>Water Leakage</option>
-                        <option>Street Light</option>
-                        <option>Sanitation</option>
+                        <option>Road Damage</option><option>Water Leakage</option><option>Street Light</option><option>Sanitation</option>
                     </select>
 
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Explain the problem</label>
-                    <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Describe here..."></textarea>
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Explain Problem</label>
+                    <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Ward no, landmark..."></textarea>
                     
-                    <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700;">🎤 Speak </button>
+                    <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak (Marathi/Hindi)</button>
 
                     <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1.5px dashed #cbd5e1; text-align: center;">
-                        <input type="hidden" name="latitude" id="lat">
-                        <input type="hidden" name="longitude" id="lon">
-                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="border: 1px solid var(--primary); background: white; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 700;">📍 Tag Location</button>
+                        <input type="hidden" name="latitude" id="lat"><input type="hidden" name="longitude" id="lon">
+                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="border: 1px solid var(--primary); background: white; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 700;">📍 Tag My Location</button>
                     </div>
 
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Upload Photo</label>
@@ -151,19 +150,14 @@
                 </div>
 
                 <div class="card" style="overflow-x: auto;">
-                    <h3>📋 Your Activity</h3>
+                    <h3>📋 Recent Activity</h3>
                     <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                        <thead>
-                            <tr style="text-align: left; font-size: 11px; color: var(--text-sub);">
-                                <th style="padding: 10px;">Category</th>
-                                <th style="padding: 10px;">Status</th>
-                            </tr>
-                        </thead>
+                        <thead><tr style="text-align: left; font-size: 11px; color: var(--text-sub);"><th>Issue</th><th>Status</th></tr></thead>
                         <tbody>
                             <% complaints.forEach(c => { %>
                                 <tr style="border-top: 1px solid #f1f5f9; font-size: 14px;">
-                                    <td style="padding: 10px;"><b><%= c.category %></b><br><small>🤖 <%= c.aiPriority %></small></td>
-                                    <td style="padding: 10px;"><%= c.status %></td>
+                                    <td style="padding: 12px 0;"><b><%= c.category %></b><br><small>🤖 <%= c.aiPriority %></small></td>
+                                    <td><span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; background: #f1f5f9;"><%= c.status %></span></td>
                                 </tr>
                             <% }) %>
                         </tbody>
@@ -174,11 +168,15 @@
     </main>
 
     <div class="drawer" id="profileDrawer">
-        <h3>👤 Edit Profile</h3>
-        <form action="/user/update" method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
-            <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Name">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h3>👤 Edit Profile</h3>
+            <button onclick="closeDrawer()" style="background:none; border:none; font-size:24px;">&times;</button>
+        </div>
+        <form action="/user/update" method="POST" enctype="multipart/form-data">
+            <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Full Name">
             <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field" placeholder="Mobile">
             <textarea name="address" class="input-field" placeholder="Address"><%= user.address %></textarea>
+            <label style="font-size: 11px; display: block; margin-top: 10px;">Update Profile Photo</label>
             <input type="file" name="profilePic" class="input-field">
             <button type="submit" class="btn-submit">Save Changes</button>
         </form>
@@ -193,7 +191,7 @@
                 navigator.geolocation.getCurrentPosition((position) => {
                     document.getElementById('lat').value = position.coords.latitude;
                     document.getElementById('lon').value = position.coords.longitude;
-                    document.getElementById('gpsBtn').innerText = "✅ Tagged";
+                    document.getElementById('gpsBtn').innerText = "✅ Location Tagged";
                     document.getElementById('gpsBtn').style.background = "#D8F3DC";
                 });
             }
@@ -201,12 +199,16 @@
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'mr-IN';
-        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); };
+        document.getElementById('start-voice-btn').onclick = () => { 
+            recognition.start(); 
+            document.getElementById('start-voice-btn').innerText = "Listening..."; 
+        };
         recognition.onresult = (e) => { 
-            document.getElementById('complaint_desc').value += e.results[0][0].transcript; 
+            document.getElementById('complaint_desc').value += e.results[0][0].transcript + " ";
+            document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak";
         };
 
-        // --- GRAPH LOGIC ---
+        // Graph Logic
         const complaintsData = <%- JSON.stringify(complaints) %>;
         const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
         complaintsData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });
@@ -215,13 +217,9 @@
             type: 'doughnut',
             data: {
                 labels: Object.keys(counts),
-                datasets: [{
-                    data: Object.values(counts),
-                    backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'],
-                    borderWidth: 0
-                }]
+                datasets: [{ data: Object.values(counts), backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'], borderWidth: 0 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
         });
     </script>
 </body>

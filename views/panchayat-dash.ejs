@@ -22,31 +22,49 @@
             --text-sub: #64748b;
             --danger: #ef4444;
             --shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            --nav-height: 70px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); display: flex; min-height: 100vh; flex-direction: row; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; }
 
-        /* --- SIDEBAR --- */
+        /* --- ✅ TOP NAVBAR (FIXED) --- */
+        .top-navbar {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
+            background: var(--white); display: flex; justify-content: space-between;
+            align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100;
+        }
+        .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .nav-logo span { color: var(--accent); }
+
+        .office-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .office-nav-info img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
+
+        /* --- ✅ SIDEBAR (FIXED) --- */
         .sidebar { 
             width: 280px; background: var(--white); border-right: 1px solid #e2e8f0; 
-            display: flex; flex-direction: column; padding: 0; position: fixed; height: 100vh; z-index: 100; 
+            display: flex; flex-direction: column; padding: 0; position: fixed; 
+            height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; 
         }
 
-        .main-content { margin-left: 280px; width: calc(100% - 280px); padding: 40px; transition: 0.3s; }
+        /* --- ✅ MAIN CONTENT (ADJUSTED) --- */
+        .main-content { 
+            margin-left: 280px; width: calc(100% - 280px); 
+            padding: 30px; padding-top: calc(var(--nav-height) + 30px);
+            transition: 0.3s; 
+        }
 
         /* --- MOBILE FIXES --- */
         @media (max-width: 992px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid #e2e8f0; }
-            .main-content { margin-left: 0; width: 100%; padding: 20px; }
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; }
             .grid-2-1 { grid-template-columns: 1fr !important; }
         }
 
-        .sidebar-header { padding: 30px 20px; background: linear-gradient(to bottom, var(--primary-soft), var(--white)); text-align: center; }
+        .sidebar-header { padding: 20px; background: var(--primary-soft); text-align: center; }
         .panchayat-logo-container {
-            width: 80px; height: 80px; background: white; border-radius: 50%;
-            margin: 0 auto 15px; border: 2px solid var(--primary); overflow: hidden; display: flex; align-items: center; justify-content: center;
+            width: 60px; height: 60px; background: white; border-radius: 50%;
+            margin: 0 auto 10px; border: 2px solid var(--primary); overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
         .panchayat-logo-container img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -57,7 +75,6 @@
 
         .card { background: var(--white); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); border: 1px solid #f1f5f9; margin-bottom: 30px; }
 
-        /* --- STATUS PILLS --- */
         .status-pill { padding: 6px 14px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .pending { background: #fff7ed; color: #c2410c; }
         .in-progress { background: #eff6ff; color: #1d4ed8; }
@@ -70,13 +87,12 @@
         th { text-align: left; padding: 10px 15px; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }
         td { padding: 15px; background: #fff; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
 
-        /* --- MODAL FOR DESCRIPTION --- */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
         .modal-content { background: white; margin: 10% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; position: relative; }
         
         .drawer { position: fixed; right: -450px; top: 0; width: 100%; max-width: 420px; height: 100%; background: white; z-index: 2001; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 2000; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1500; }
         .overlay.active { display: block; }
         .input-field { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #e2e8f0; outline: none; }
     </style>
@@ -84,6 +100,14 @@
 <body>
 
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<nav class="top-navbar">
+    <a href="/" class="nav-logo">🌿 e-Gram<span>Seva</span></a>
+    <div class="office-nav-info" onclick="openDrawer()">
+        <span style="font-weight: 700; font-size: 14px; color: var(--text-main);"><%= user.name %> (<%= user.designation %>)</span>
+        <img src="<%= user.profilePic ? user.profilePic : 'https://cdn-icons-png.flaticon.com/512/2555/2555022.png' %>">
+    </div>
+</nav>
 
 <div id="descModal" class="modal">
     <div class="modal-content">
@@ -99,23 +123,21 @@
         <div class="panchayat-logo-container">
             <img src="<%= user.profilePic ? user.profilePic : 'https://cdn-icons-png.flaticon.com/512/2555/2555022.png' %>">
         </div>
-        <div class="office-title" style="font-weight: 800; color: var(--primary);">Gram Panchayat<br><%= user.panchayatName %></div>
+        <div style="font-weight: 800; color: var(--primary); font-size: 14px;">Gram Panchayat<br><%= user.panchayatName %></div>
     </div>
     <nav class="nav-menu">
         <a href="/panchayat/dashboard" class="nav-item active">📊 Dashboard</a>
         <a href="#table-section" class="nav-item">📋 Grievance Queue</a>
         <div onclick="openDrawer()" class="nav-item">⚙️ Office Settings</div>
+        <a href="/logout" class="nav-item" style="color: var(--danger); margin-top: 20px;">🚪 Logout Office</a>
     </nav>
-    <div class="sidebar-footer" style="padding: 20px; border-top: 1px solid #eee;">
-        <a href="/logout" style="text-decoration:none; color:var(--danger); font-weight:bold; font-size:13px;">🚪 Logout Office</a>
-    </div>
 </aside>
 
 <main class="main-content">
     <div class="card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
         <div>
             <h1 style="font-size: 24px; color: var(--primary);">Office Dashboard</h1>
-            <p style="color: var(--text-sub);">Welcome, Officer <%= user.name %></p>
+            <p style="color: var(--text-sub);">Managing: <strong><%= user.panchayatName %></strong></p>
         </div>
         <button onclick="generatePDF()" style="background: var(--text-main); color:white; padding:12px 24px; border:none; border-radius:14px; font-weight:700; cursor:pointer;">📥 Export Report</button>
     </div>
@@ -170,7 +192,7 @@
                         </div>
                     </td>
                     <td>
-                        <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" 
+                        <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, "\\\'") %>')" 
                                 style="background: var(--primary-soft); color: var(--primary); border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;">
                             View
                         </button>
@@ -225,7 +247,6 @@
     function openDrawer() { document.getElementById('adminDrawer').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
     function closeDrawer() { document.getElementById('adminDrawer').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
 
-    // Modal Logic
     function openModal(title, body) {
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalBody').innerText = body;
