@@ -53,16 +53,16 @@
             .content-grid { grid-template-columns: 1fr; }
         }
 
-        /* --- CARDS & FORMS --- */
+        /* --- CARDS & UI --- */
         .card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #f1f5f9; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: var(--white); padding: 18px; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; }
         
-        .content-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; }
         .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; }
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
-        /* Drawer for Profile */
+        /* Drawer */
         .drawer { position: fixed; right: -450px; top: 0; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 1001; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; backdrop-filter: blur(4px); }
@@ -84,11 +84,11 @@
                         <% news.forEach(item => { %>
                             <p><strong><%= item.title %>:</strong> <%= item.content %></p><hr style="opacity: 0.1; margin: 5px 0;">
                         <% }) %>
-                    <% } else { %> <p>No updates available.</p> <% } %>
+                    <% } else { %> <p>No updates.</p> <% } %>
                 </div>
             </div>
             <a onclick="openDrawer()" class="nav-item">👤 Profile Settings</a>
-            <a href="/logout" class="nav-item" style="color: var(--danger);">🚪 Logout Session</a>
+            <a href="/logout" class="nav-item" style="color: var(--danger);">🚪 Logout</a>
         </nav>
     </aside>
 
@@ -116,7 +116,7 @@
             <div class="card">
                 <h3>📝 Raise New Issue</h3>
                 <form action="/complaints/add" method="POST" enctype="multipart/form-data">
-                    <label style="font-size: 12px; font-weight: 700;">Issue Category</label>
+                    <label style="font-size: 12px; font-weight: 700;">Category</label>
                     <select name="category" class="input-field">
                         <option>Road Damage</option>
                         <option>Water Leakage</option>
@@ -125,74 +125,61 @@
                     </select>
 
                     <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Explain the problem</label>
-                    <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Mention ward no, landmark..."></textarea>
+                    <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Describe here..."></textarea>
                     
-                    <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak (Marathi/Hindi)</button>
+                    <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700;">🎤 Speak </button>
 
                     <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1.5px dashed #cbd5e1; text-align: center;">
                         <input type="hidden" name="latitude" id="lat">
                         <input type="hidden" name="longitude" id="lon">
-                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="border: 1px solid var(--primary); background: white; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 700;">📍 Tag Current Location</button>
+                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="border: 1px solid var(--primary); background: white; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 700;">📍 Tag Location</button>
                     </div>
 
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Upload Photo Evidence</label>
+                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Upload Photo</label>
                     <input type="file" name="complaintImage" class="input-field">
                     
                     <button type="submit" class="btn-submit">Submit Report</button>
                 </form>
             </div>
 
-            <div class="card" style="overflow-x: auto;">
-                <h3>📋 Recent Activity</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                    <thead>
-                        <tr style="text-align: left; font-size: 11px; color: var(--text-sub); text-transform: uppercase;">
-                            <th style="padding: 10px;">Date</th>
-                            <th style="padding: 10px;">Category & AI</th>
-                            <th style="padding: 10px;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% complaints.forEach(c => { %>
-                            <tr style="border-top: 1px solid #f1f5f9; font-size: 14px;">
-                                <td style="padding: 10px;"><%= c.createdAt.toDateString() %></td>
-                                <td style="padding: 10px;">
-                                    <b><%= c.category %></b><br>
-                                    <small style="color: <%= c.aiPriority === 'High' ? '#dc2626' : '#64748b' %>; font-weight: 800;">
-                                        🤖 AI: <%= c.aiPriority %>
-                                    </small>
-                                </td>
-                                <td style="padding: 10px;"><span style="padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: #f1f5f9;"><%= c.status %></span></td>
+            <div class="main-col">
+                <div class="card">
+                    <h3 style="margin-bottom: 20px;">📊 Status Analytics</h3>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="userStatusChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" style="overflow-x: auto;">
+                    <h3>📋 Your Activity</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="text-align: left; font-size: 11px; color: var(--text-sub);">
+                                <th style="padding: 10px;">Category</th>
+                                <th style="padding: 10px;">Status</th>
                             </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <% complaints.forEach(c => { %>
+                                <tr style="border-top: 1px solid #f1f5f9; font-size: 14px;">
+                                    <td style="padding: 10px;"><b><%= c.category %></b><br><small>🤖 <%= c.aiPriority %></small></td>
+                                    <td style="padding: 10px;"><%= c.status %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
     <div class="drawer" id="profileDrawer">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>👤 Edit Profile</h3>
-            <button onclick="closeDrawer()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
-        </div>
+        <h3>👤 Edit Profile</h3>
         <form action="/user/update" method="POST" enctype="multipart/form-data" style="margin-top: 20px;">
-            <div style="margin-bottom: 15px;">
-                <label style="font-size: 12px; font-weight: 700;">Full Name</label>
-                <input type="text" name="name" value="<%= user.name %>" class="input-field">
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label style="font-size: 12px; font-weight: 700;">Mobile</label>
-                <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field">
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label style="font-size: 12px; font-weight: 700;">Address</label>
-                <textarea name="address" class="input-field" rows="2"><%= user.address %></textarea>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label style="font-size: 12px; font-weight: 700;">New Profile Pic</label>
-                <input type="file" name="profilePic" class="input-field">
-            </div>
+            <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Name">
+            <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field" placeholder="Mobile">
+            <textarea name="address" class="input-field" placeholder="Address"><%= user.address %></textarea>
+            <input type="file" name="profilePic" class="input-field">
             <button type="submit" class="btn-submit">Save Changes</button>
         </form>
     </div>
@@ -206,23 +193,36 @@
                 navigator.geolocation.getCurrentPosition((position) => {
                     document.getElementById('lat').value = position.coords.latitude;
                     document.getElementById('lon').value = position.coords.longitude;
-                    document.getElementById('gpsBtn').innerText = "✅ Location Secured";
+                    document.getElementById('gpsBtn').innerText = "✅ Tagged";
                     document.getElementById('gpsBtn').style.background = "#D8F3DC";
                 });
             }
         }
 
-        // Voice Recognition Fix
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'mr-IN'; // Marathi support
-        document.getElementById('start-voice-btn').onclick = () => { 
-            recognition.start(); 
-            document.getElementById('start-voice-btn').innerText = "Listening..."; 
-        };
+        recognition.lang = 'mr-IN';
+        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); };
         recognition.onresult = (e) => { 
-            document.getElementById('complaint_desc').value += e.results[0][0].transcript + " ";
-            document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak";
+            document.getElementById('complaint_desc').value += e.results[0][0].transcript; 
         };
+
+        // --- GRAPH LOGIC ---
+        const complaintsData = <%- JSON.stringify(complaints) %>;
+        const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
+        complaintsData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });
+
+        new Chart(document.getElementById('userStatusChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(counts),
+                datasets: [{
+                    data: Object.values(counts),
+                    backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'],
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+        });
     </script>
 </body>
 </html>
