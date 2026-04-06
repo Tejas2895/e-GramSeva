@@ -287,3 +287,15 @@ app.post('/admin/certificate/approve/:id', upload.single('certFile'), async (req
         res.status(500).send("Approval Failed: " + err.message);
     }
 });
+// --- Admin Side: Reject Certificate Request ---
+app.post('/admin/certificate/reject/:id', async (req, res) => {
+    try {
+        await Certificate.findByIdAndUpdate(req.params.id, {
+            status: 'Rejected'
+        });
+        res.redirect('/panchayat/dashboard');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Rejection Failed: " + err.message);
+    }
+});

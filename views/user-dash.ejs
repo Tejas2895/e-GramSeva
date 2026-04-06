@@ -13,14 +13,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; }
 
-        /* Navigation & Sidebar */
+        /* --- FIXED NAVIGATION --- */
         .top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--white); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100; }
         .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
         .nav-logo span { color: var(--accent); }
         .user-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .user-nav-info img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
 
+        /* --- SIDEBAR --- */
         .sidebar { width: 260px; background: var(--white); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 20px; position: fixed; height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; transition: 0.3s; }
+        .nav-menu { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-decoration: none; color: var(--text-sub); font-weight: 600; border-radius: 14px; transition: 0.3s; font-size: 14px; }
+        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        
         .main-wrapper { margin-left: 260px; padding: 30px; padding-top: calc(var(--nav-height) + 30px); width: calc(100% - 260px); min-height: 100vh; }
 
         /* UI Components */
@@ -32,19 +37,23 @@
         .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; }
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
-        .status-pill { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        /* Status Badges */
+        .status-pill { padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .pending { background: #fff7ed; color: #c2410c; } .in-progress { background: #eff6ff; color: #1d4ed8; } .resolved { background: #f0fdf4; color: #166534; } .rejected { background: #fef2f2; color: #b91c1c; }
-        
-        .ai-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+        .ai-badge { background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+        .ai-high { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { text-align: left; padding: 10px; color: var(--text-sub); font-size: 12px; text-transform: uppercase; }
-        td { padding: 15px; background: #fff; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        /* Modern History List */
+        .history-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: -12px; }
+        .history-table tr { background: #fff; transition: 0.2s; }
+        .history-table td { padding: 20px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .history-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+        .history-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
 
-        /* Modal & Drawer */
+        /* Modals */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
-        .modal-content { background: white; margin: 15% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; position: relative; }
-        .drawer { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.4s; padding: 40px; }
+        .modal-content { background: white; margin: 15% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; }
+        .drawer { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1500; }
         .overlay.active { display: block; }
@@ -60,8 +69,8 @@
         <div class="modal-content">
             <h3 id="modalTitle" style="color: var(--primary);">Issue Description</h3>
             <hr style="margin: 15px 0; opacity: 0.1;">
-            <p id="modalBody" style="line-height: 1.6; color: var(--text-main);"></p>
-            <button onclick="closeModal()" class="btn-submit" style="margin-top: 20px;">Close</button>
+            <p id="modalBody" style="line-height: 1.6; color: var(--text-main); font-size: 14px;"></p>
+            <button onclick="closeModal()" class="btn-submit" style="margin-top: 20px;">Close Window</button>
         </div>
     </div>
 
@@ -74,19 +83,24 @@
     </nav>
 
     <aside class="sidebar">
-        <nav class="nav-menu" style="flex: 1;">
-            <a href="/user/dashboard" class="nav-item active">🏠 Dashboard Home</a>
-            <div style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 15px 0;">
-                <h4 style="font-size: 13px; color: var(--primary);">📢 Village News</h4>
-                <div style="max-height: 120px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
+        <nav class="nav-menu">
+            <a href="/user/dashboard" class="nav-item active">📊 Dashboard Home</a>
+            
+            <div style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 10px 0;">
+                <h4 style="font-size: 12px; color: var(--primary);">📢 Village Updates</h4>
+                <div style="max-height: 120px; overflow-y: auto; font-size: 11px; margin-top: 8px;">
                     <% if(news && news.length > 0) { %>
                         <% news.forEach(item => { %>
-                            <p><strong><%= item.title %></strong></p><hr style="opacity: 0.1; margin: 5px 0;">
+                            <div style="margin-bottom: 10px;">
+                                <strong><%= item.title %></strong>
+                                <p style="font-size: 10px; color: var(--text-sub); margin-top: 2px;"><%= item.content %></p>
+                                <hr style="opacity: 0.05; margin: 5px 0;">
+                            </div>
                         <% }) %>
-                    <% } else { %> <p>No updates.</p> <% } %>
+                    <% } else { %> <p>No news today.</p> <% } %>
                 </div>
             </div>
-            <a onclick="openDrawer()" class="nav-item">👤 Profile Settings</a>
+            <a onclick="openDrawer()" class="nav-item" style="cursor: pointer;">⚙️ Profile Settings</a>
             <a href="/logout" class="nav-item" style="color: var(--danger); margin-top: auto;">🚪 Logout Session</a>
         </nav>
     </aside>
@@ -105,25 +119,25 @@
                     <h3>📝 Raise New Issue</h3>
                     <form action="/complaints/add" method="POST" enctype="multipart/form-data">
                         <select name="category" class="input-field"><option>Road Damage</option><option>Water Leakage</option><option>Street Light</option><option>Sanitation</option></select>
-                        <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Explain Problem..."></textarea>
-                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700;">🎤 Voice Input</button>
+                        <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Describe the issue..."></textarea>
+                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top:5px;">🎤 Tap to Speak (Voice)</button>
                         <input type="hidden" name="latitude" id="lat"><input type="hidden" name="longitude" id="lon">
-                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="width:100%; margin-top:10px; border:1px dashed var(--primary); padding:10px; border-radius:10px; cursor:pointer;">📍 Tag My Location</button>
+                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="width:100%; margin-top:12px; border:1px dashed var(--primary); padding:10px; border-radius:12px; cursor:pointer; font-weight: 600;">📍 Tag My Location</button>
                         <input type="file" name="complaintImage" class="input-field">
                         <button type="submit" class="btn-submit">Submit Report</button>
                     </form>
                 </div>
 
                 <div class="card" style="overflow-x: auto;">
-                    <h3>💰 Gram Nidhi & Funds</h3>
+                    <h3>💰 Village Funds Tracker</h3>
                     <table style="width:100%; margin-top:10px; font-size: 13px;">
-                        <thead><tr><th>Scheme Name</th><th>Allocated Fund</th></tr></thead>
+                        <thead><tr><th style="font-size: 10px;">Scheme Name</th><th style="font-size: 10px; text-align: right;">Fund</th></tr></thead>
                         <tbody>
                             <% if(schemes && schemes.length > 0) { %>
                                 <% schemes.forEach(s => { %>
-                                    <tr><td><b><%= s.name %></b></td><td><%= s.fundAllocated %></td></tr>
+                                    <tr><td><b><%= s.name %></b></td><td style="color:var(--primary); font-weight:700; text-align: right;"><%= s.fundAllocated %></td></tr>
                                 <% }) %>
-                            <% } else { %> <tr><td colspan="2" style="text-align:center;">No active schemes.</td></tr> <% } %>
+                            <% } else { %> <tr><td colspan="2" style="text-align:center;">No active funds found.</td></tr> <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -131,43 +145,43 @@
 
             <div class="col-right">
                 <div class="card" style="text-align: center;">
-                    <h3>📊 My Grievance Status</h3>
+                    <h3>📊 Grievance Analytics</h3>
                     <div style="height: 220px; margin-top: 15px;"><canvas id="userStatusChart"></canvas></div>
                 </div>
 
                 <div class="card" style="overflow-x: auto;">
                     <h3>📜 Digital Certificates</h3>
                     <table style="width:100%; font-size: 13px; margin-top: 10px;">
-                        <thead><tr><th>Type</th><th>Status</th><th>Get</th></tr></thead>
+                        <thead><tr><th style="font-size: 10px;">Type</th><th style="font-size: 10px;">Status</th><th style="font-size: 10px;">Get</th></tr></thead>
                         <tbody>
                             <% if(certificates && certificates.length > 0) { %>
                                 <% certificates.forEach(cert => { %>
                                     <tr>
                                         <td><b><%= cert.type %></b></td>
-                                        <td><span class="status-pill pending" style="font-size: 9px;"><%= cert.status %></span></td>
-                                        <td><% if(cert.status === 'Approved') { %><a href="<%= cert.issuedFile %>" target="_blank" style="text-decoration:none;">⬇️ PDF</a><% } else { %>-<% } %></td>
+                                        <td><span class="status-pill pending" style="padding:2px 8px; font-size:9px;"><%= cert.status %></span></td>
+                                        <td><% if(cert.status === 'Approved') { %><a href="<%= cert.issuedFile %>" target="_blank" style="text-decoration:none;">⬇️ Download</a><% } else { %>-<% } %></td>
                                     </tr>
                                 <% }) %>
-                            <% } else { %> <tr><td colspan="3" style="text-align:center;">No requests found.</td></tr> <% } %>
+                            <% } else { %> <tr><td colspan="3" style="text-align:center;">No certificate requests.</td></tr> <% } %>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div class="card" id="table-section" style="overflow-x: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3>📋 My Reported Issues (Grievance History)</h3>
-                <span style="font-size: 12px; background: #eee; padding: 5px 12px; border-radius: 20px;">Total: <%= complaints.length %></span>
+        <div class="card" style="overflow-x: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3>📋 Grievance Tracking History</h3>
+                <span style="font-size: 12px; color:var(--text-sub);">Reports: <%= complaints.length %></span>
             </div>
-            <table style="width: 100%;">
+            <table class="history-table">
                 <thead>
                     <tr>
-                        <th>Ref ID</th>
-                        <th>Category & AI</th>
+                        <th>Category</th>
+                        <th>AI Priority</th>
                         <th>Details</th>
                         <th>Status</th>
-                        <th>Date</th>
+                        <th>Reported Date</th>
                         <th>Photo</th>
                     </tr>
                 </thead>
@@ -175,38 +189,44 @@
                     <% if(complaints && complaints.length > 0) { %>
                         <% complaints.forEach(c => { %>
                             <tr>
-                                <td style="font-family: monospace; color: var(--text-sub);">#<%= c._id.toString().slice(-6).toUpperCase() %></td>
+                                <td><b style="font-size: 15px;"><%= c.category %></b><br><small style="color:var(--text-sub);">#<%= c._id.toString().slice(-6).toUpperCase() %></small></td>
                                 <td>
-                                    <b><%= c.category %></b><br>
-                                    <div class="ai-badge" style="<%= c.aiPriority === 'High' ? 'background: var(--danger)' : '' %>">🤖 <%= c.aiPriority %></div>
+                                    <div class="ai-badge <%= c.aiPriority === 'High' ? 'ai-high' : '' %>">
+                                        🤖 <%= c.aiPriority %>
+                                    </div>
                                 </td>
                                 <td>
                                     <button onclick="openModal('<%= c.category %>', '<%= (c.description || '').replace(/'/g, '\\\'') %>')" 
-                                            style="background:var(--primary-light); color:var(--primary); border:none; padding:5px 10px; border-radius:8px; cursor:pointer; font-size: 11px; font-weight: 700;">
-                                        View
+                                            style="background:var(--primary-light); color:var(--primary); border:none; padding:8px 12px; border-radius:10px; cursor:pointer; font-size: 11px; font-weight: 700;">
+                                        View Info
                                     </button>
                                 </td>
                                 <td><span class="status-pill <%= c.status.toLowerCase().replace(' ', '-') %>"><%= c.status %></span></td>
-                                <td><%= new Date(c.createdAt).toLocaleDateString('en-IN') %></td>
+                                <td style="font-size: 12px; color: var(--text-sub);"><%= new Date(c.createdAt).toLocaleDateString('en-IN') %></td>
                                 <td>
                                     <% if(c.imageUrl) { %>
-                                        <img src="<%= c.imageUrl %>" style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)">
-                                    <% } else { %> - <% } %>
+                                        <img src="<%= c.imageUrl %>" style="width:45px; height:45px; border-radius:12px; object-fit:cover; cursor:pointer; border:1px solid #eee;" onclick="window.open(this.src)">
+                                    <% } else { %> <span style="font-size: 10px; color:#ccc;">No Photo</span> <% } %>
                                 </td>
                             </tr>
                         <% }) %>
-                    <% } else { %> <tr><td colspan="6" style="text-align:center; padding:30px;">No complaints reported.</td></tr> <% } %>
+                    <% } else { %> <tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-sub);">You haven't reported any issues yet.</td></tr> <% } %>
                 </tbody>
             </table>
         </div>
     </main>
 
     <div class="drawer" id="profileDrawer">
-        <h3>👤 Profile Settings</h3>
-        <form action="/user/update" method="POST" enctype="multipart/form-data" style="margin-top:20px;">
-            <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Name">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3>👤 Profile Settings</h3>
+            <button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <form action="/user/update" method="POST" enctype="multipart/form-data">
+            <label style="font-size:11px; color:var(--text-sub);">Full Name</label>
+            <input type="text" name="name" value="<%= user.name %>" class="input-field">
+            <label style="font-size:11px; color:var(--text-sub); margin-top:15px; display:block;">Change Profile Photo</label>
             <input type="file" name="profilePic" class="input-field">
-            <button type="submit" class="btn-submit">Save Changes</button>
+            <button type="submit" class="btn-submit" style="margin-top: 30px;">Update My Profile</button>
         </form>
     </div>
 
@@ -232,17 +252,20 @@
                 navigator.geolocation.getCurrentPosition((pos) => { 
                     document.getElementById('lat').value = pos.coords.latitude; 
                     document.getElementById('lon').value = pos.coords.longitude; 
-                    document.getElementById('gpsBtn').innerText = "✅ Tagged"; 
+                    document.getElementById('gpsBtn').innerText = "✅ Location Tagged"; 
+                    document.getElementById('gpsBtn').style.background = "#D8F3DC";
                 }); 
             } 
         }
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'mr-IN';
-        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); };
-        recognition.onresult = (e) => { document.getElementById('complaint_desc').value += e.results[0][0].transcript; };
+        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); document.getElementById('start-voice-btn').innerText = "Listening..."; };
+        recognition.onresult = (e) => { 
+            document.getElementById('complaint_desc').value += e.results[0][0].transcript; 
+            document.getElementById('start-voice-btn').innerText = "🎤 Voice Input";
+        };
 
-        // Chart with Legend at Bottom
         const complaintsData = <%- JSON.stringify(complaints) %>;
         const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
         complaintsData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });
