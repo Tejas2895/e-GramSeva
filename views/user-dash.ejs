@@ -44,6 +44,11 @@
         .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; }
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
+        /* Activity Card Styling */
+        .activity-item { border: 1px solid #f1f5f9; padding: 15px; border-radius: 16px; transition: 0.3s; background: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .category-icon { width: 45px; height: 45px; background: var(--primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .ai-priority-tag { padding: 2px 6px; border-radius: 4px; font-weight: 800; font-size: 10px; }
+
         .drawer { position: fixed; right: -450px; top: 0; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1500; backdrop-filter: blur(4px); }
@@ -58,7 +63,7 @@
         <a href="/" class="nav-logo">🌿 e-Gram<span>Seva</span></a>
         <div class="user-nav-info" onclick="openDrawer()">
             <span style="font-weight: 700; font-size: 14px; color: var(--text-main);"><%= user.name %></span>
-            <img src="<%= user.profilePic ? user.profilePic : 'https://via.placeholder.com/150' %>">
+            <img src="<%= user.profilePic || 'https://via.placeholder.com/150' %>">
         </div>
     </nav>
 
@@ -68,7 +73,7 @@
             
             <div style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 15px 0;">
                 <h4 style="font-size: 13px; color: var(--primary);">📢 Village News</h4>
-                <div style="max-height: 120px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
+                <div style="max-height: 150px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
                     <% if(news && news.length > 0) { %>
                         <% news.forEach(item => { %>
                             <p><strong><%= item.title %></strong></p><hr style="opacity: 0.1; margin: 5px 0;">
@@ -87,7 +92,7 @@
             <div class="stat-box">⏳ <div><p style="font-size: 11px;">Pending</p><b><%= complaints.filter(c => c.status === 'Pending').length %></b></div></div>
             <div class="stat-box">🔄 <div><p style="font-size: 11px;">In-Progress</p><b><%= complaints.filter(c => c.status === 'In-Progress').length %></b></div></div>
             <div class="stat-box">✅ <div><p style="font-size: 11px;">Resolved</p><b><%= complaints.filter(c => c.status === 'Resolved').length %></b></div></div>
-            <div class="stat-box">📜 <div><p style="font-size: 11px;">Certs</p><b><%= certificates.filter(cert => cert.status === 'Approved').length %></b></div></div>
+            <div class="stat-box">📜 <div><p style="font-size: 11px;">Certificates</p><b><%= certificates.filter(cert => cert.status === 'Approved').length %></b></div></div>
         </div>
 
         <div class="content-grid">
@@ -124,29 +129,9 @@
             <div class="col-right">
                 <div class="card">
                     <h3 style="margin-bottom: 20px;">📊 Status Analytics</h3>
-                    <div style="height: 200px; position: relative;"><canvas id="userStatusChart"></canvas></div>
-                </div>
-
-                <div class="card" style="overflow-x: auto;">
-                    <h3>📜 Your Certificates</h3>
-                    <table style="width:100%; margin-top:15px; border-collapse: collapse; font-size: 13px;">
-                        <thead><tr style="text-align: left; color: var(--text-sub);"><th>Type</th><th>Status</th><th>Download</th></tr></thead>
-                        <tbody>
-                            <% if(certificates && certificates.length > 0) { %>
-                                <% certificates.forEach(cert => { %>
-                                    <tr style="border-top:1px solid #eee;">
-                                        <td style="padding:10px 0;"><b><%= cert.type %></b></td>
-                                        <td><span style="font-size: 10px; padding: 4px 8px; background: #f1f5f9; border-radius: 6px;"><%= cert.status %></span></td>
-                                        <td>
-                                            <% if(cert.status === 'Approved') { %>
-                                                <a href="<%= cert.issuedFile %>" target="_blank" style="color: var(--primary); font-weight: 700;">⬇️ Download</a>
-                                            <% } else { %> - <% } %>
-                                        </td>
-                                    </tr>
-                                <% }) %>
-                            <% } else { %> <tr><td colspan="3" style="text-align:center; padding:15px;">No requests found.</td></tr> <% } %>
-                        </tbody>
-                    </table>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="userStatusChart"></canvas>
+                    </div>
                 </div>
 
                 <div class="card" style="overflow-x: auto;">
@@ -164,32 +149,73 @@
                 </div>
 
                 <div class="card" style="overflow-x: auto;">
-                    <h3>📋 Your Activity</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                        <thead><tr style="text-align: left; font-size: 11px; color: var(--text-sub);"><th>Issue</th><th>Status</th></tr></thead>
+                    <h3>📜 Your Certificates</h3>
+                    <table style="width:100%; margin-top:15px; border-collapse: collapse; font-size: 13px;">
+                        <thead><tr style="text-align: left; color: var(--text-sub);"><th>Type</th><th>Status</th><th>Download</th></tr></thead>
                         <tbody>
-                            <% complaints.forEach(c => { %>
-                                <tr style="border-top: 1px solid #f1f5f9; font-size: 14px;">
-                                    <td style="padding: 12px 0;"><b><%= c.category %></b><br><small>🤖 AI: <%= c.aiPriority %></small></td>
-                                    <td><span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; background: #f1f5f9;"><%= c.status %></span></td>
-                                </tr>
-                            <% }) %>
+                            <% if(certificates && certificates.length > 0) { %>
+                                <% certificates.forEach(cert => { %>
+                                    <tr style="border-top:1px solid #eee;">
+                                        <td style="padding:10px 0;"><b><%= cert.type %></b></td>
+                                        <td><span style="font-size: 10px; padding: 4px 8px; background: #f1f5f9; border-radius: 6px;"><%= cert.status %></span></td>
+                                        <td><% if(cert.status === 'Approved') { %> <a href="<%= cert.issuedFile %>" target="_blank" style="color: var(--primary); font-weight: 700;">⬇️ PDF</a> <% } else { %> - <% } %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %> <tr><td colspan="3" style="text-align:center; padding:15px;">No requests found.</td></tr> <% } %>
                         </tbody>
                     </table>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>📋 My Reported Issues</h3>
+                        <span style="font-size: 12px; color: var(--text-sub); background: #eee; padding: 4px 10px; border-radius: 20px;">Total: <%= complaints.length %></span>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <% if(complaints && complaints.length > 0) { %>
+                            <% complaints.forEach(c => { %>
+                                <div class="activity-item">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div class="category-icon">
+                                            <% if(c.category === 'Road Damage') { %> 🛠️ <% } else if(c.category === 'Water Leakage') { %> 💧 <% } else if(c.category === 'Street Light') { %> 💡 <% } else { %> 📁 <% } %>
+                                        </div>
+                                        <div>
+                                            <h4 style="font-size: 15px; margin-bottom: 4px;"><%= c.category %></h4>
+                                            <p style="font-size: 11px; color: var(--text-sub);">
+                                                📅 <%= new Date(c.createdAt).toLocaleDateString('en-IN') %> • 
+                                                <span class="ai-priority-tag" style="background: <%= c.aiPriority === 'High' ? '#fee2e2' : '#f1f5f9' %>; color: <%= c.aiPriority === 'High' ? '#ef4444' : '#64748b' %>;">
+                                                    🤖 AI: <%= c.aiPriority %>
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div style="text-align: right;">
+                                        <% 
+                                            let sColor = '#64748b'; let sBg = '#f1f5f9';
+                                            if(c.status === 'Pending') { sColor = '#ea580c'; sBg = '#fff7ed'; }
+                                            else if(c.status === 'Resolved') { sColor = '#16a34a'; sBg = '#f0fdf4'; }
+                                        %>
+                                        <span style="background: <%= sBg %>; color: <%= sColor %>; padding: 5px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; border: 1px solid <%= sColor %>20;">
+                                            <%= c.status %>
+                                        </span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %> <p style="text-align:center; color:var(--text-sub); padding:20px;">No activity yet.</p> <% } %>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <div class="drawer" id="profileDrawer">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h3>👤 Edit Profile</h3><button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
-        </div>
-        <form action="/user/update" method="POST" enctype="multipart/form-data">
-            <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Full Name">
-            <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field" placeholder="Mobile">
-            <textarea name="address" class="input-field" placeholder="Address"><%= user.address %></textarea>
-            <label style="font-size: 11px; display: block; margin-top: 10px;">Update Profile Photo</label>
+        <h3>👤 Edit Profile</h3>
+        <form action="/user/update" method="POST" enctype="multipart/form-data" style="margin-top:20px;">
+            <input type="text" name="name" value="<%= user.name %>" class="input-field">
+            <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field">
+            <textarea name="address" class="input-field"><%= user.address %></textarea>
             <input type="file" name="profilePic" class="input-field">
             <button type="submit" class="btn-submit">Save Changes</button>
         </form>
@@ -205,23 +231,16 @@
                     document.getElementById('lat').value = position.coords.latitude;
                     document.getElementById('lon').value = position.coords.longitude;
                     document.getElementById('gpsBtn').innerText = "✅ Location Tagged";
-                    document.getElementById('gpsBtn').style.background = "#D8F3DC";
                 });
             }
         }
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'mr-IN';
-        document.getElementById('start-voice-btn').onclick = () => { 
-            recognition.start(); 
-            document.getElementById('start-voice-btn').innerText = "Listening..."; 
-        };
-        recognition.onresult = (e) => { 
-            document.getElementById('complaint_desc').value += e.results[0][0].transcript + " ";
-            document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak";
-        };
+        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); };
+        recognition.onresult = (e) => { document.getElementById('complaint_desc').value += e.results[0][0].transcript; };
 
-        // Graph Logic
+        // Graph
         const complaintsData = <%- JSON.stringify(complaints) %>;
         const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
         complaintsData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });
@@ -232,7 +251,7 @@
                 labels: Object.keys(counts),
                 datasets: [{ data: Object.values(counts), backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'], borderWidth: 0 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+            options: { responsive: true, maintainAspectRatio: false, cutout: '75%' }
         });
     </script>
 </body>
