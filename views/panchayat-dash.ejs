@@ -11,214 +11,134 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-
-        :root {
-            --primary: #1a7431;
-            --primary-soft: #e8f5e9;
-            --accent: #f97316;
-            --bg: #f8fafc;
-            --white: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --danger: #ef4444;
-            --shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-            --nav-height: 70px;
-        }
-
+        :root { --primary: #1a7431; --primary-soft: #e8f5e9; --accent: #f97316; --bg: #f8fafc; --white: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --danger: #ef4444; --shadow: 0 10px 25px -5px rgba(0,0,0,0.05); --nav-height: 70px; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; }
 
-        /* --- ✅ TOP NAVBAR (FIXED) --- */
-        .top-navbar {
-            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
-            background: var(--white); display: flex; justify-content: space-between;
-            align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100;
-        }
-        .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .nav-logo span { color: var(--accent); }
+        /* Navigation & Sidebar */
+        .top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--white); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100; }
+        .sidebar { width: 280px; background: var(--white); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; position: fixed; height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; overflow-y: auto; }
+        .main-content { margin-left: 280px; width: calc(100% - 280px); padding: 30px; padding-top: calc(var(--nav-height) + 30px); transition: 0.3s; }
 
-        .office-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .office-nav-info img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
-
-        /* --- ✅ SIDEBAR (FIXED) --- */
-        .sidebar { 
-            width: 280px; background: var(--white); border-right: 1px solid #e2e8f0; 
-            display: flex; flex-direction: column; padding: 0; position: fixed; 
-            height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; 
-        }
-
-        /* --- ✅ MAIN CONTENT (ADJUSTED) --- */
-        .main-content { 
-            margin-left: 280px; width: calc(100% - 280px); 
-            padding: 30px; padding-top: calc(var(--nav-height) + 30px);
-            transition: 0.3s; 
-        }
-
-        /* --- MOBILE FIXES --- */
-        @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); }
-            .main-content { margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; }
-            .grid-2-1 { grid-template-columns: 1fr !important; }
-        }
-
-        .sidebar-header { padding: 20px; background: var(--primary-soft); text-align: center; }
-        .panchayat-logo-container {
-            width: 60px; height: 60px; background: white; border-radius: 50%;
-            margin: 0 auto 10px; border: 2px solid var(--primary); overflow: hidden; display: flex; align-items: center; justify-content: center;
-        }
-        .panchayat-logo-container img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .nav-menu { padding: 20px; flex: 1; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-decoration: none; color: var(--text-sub); font-weight: 600; border-radius: 12px; transition: 0.3s; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
-        .nav-item.active { background: var(--primary); color: white; }
-        .nav-item:hover { background: var(--primary-soft); color: var(--primary); }
-
+        /* UI Cards */
         .card { background: var(--white); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); border: 1px solid #f1f5f9; margin-bottom: 30px; }
-
-        .status-pill { padding: 6px 14px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .pending { background: #fff7ed; color: #c2410c; }
-        .in-progress { background: #eff6ff; color: #1d4ed8; }
-        .resolved { background: #f0fdf4; color: #166534; }
-        .rejected { background: #fef2f2; color: #b91c1c; }
-
+        .grid-2-1 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 25px; }
+        .input-field { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #e2e8f0; outline: none; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        
+        /* Status & Badges */
+        .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .pending { background: #fff7ed; color: #c2410c; } .resolved { background: #f0fdf4; color: #166534; }
         .ai-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { text-align: left; padding: 10px 15px; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }
         td { padding: 15px; background: #fff; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
-
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
-        .modal-content { background: white; margin: 10% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; position: relative; }
         
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
         .drawer { position: fixed; right: -450px; top: 0; width: 100%; max-width: 420px; height: 100%; background: white; z-index: 2001; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1500; }
-        .overlay.active { display: block; }
-        .input-field { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #e2e8f0; outline: none; }
+        @media (max-width: 992px) { .sidebar { display: none; } .main-content { margin-left: 0; width: 100%; } .grid-2-1 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="overlay" id="overlay" onclick="closeDrawer()" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); display:none; z-index:1500;"></div>
 
 <nav class="top-navbar">
-    <a href="/" class="nav-logo">🌿 e-Gram<span>Seva</span></a>
-    <div class="office-nav-info" onclick="openDrawer()">
-        <span style="font-weight: 700; font-size: 14px; color: var(--text-main);"><%= user.name %> (<%= user.designation %>)</span>
-        <img src="<%= user.profilePic ? user.profilePic : 'https://cdn-icons-png.flaticon.com/512/2555/2555022.png' %>">
+    <a href="/" class="nav-logo" style="text-decoration:none;">🌿 e-Gram<span>Seva</span></a>
+    <div class="office-nav-info" onclick="openDrawer()" style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+        <span style="font-weight: 700; font-size: 14px;"><%= user.name %> (<%= user.designation %>)</span>
+        <img src="<%= user.profilePic || 'https://via.placeholder.com/150' %>" style="width:35px; height:35px; border-radius:10px; object-fit:cover;">
     </div>
 </nav>
 
 <div id="descModal" class="modal">
-    <div class="modal-content">
-        <h3 id="modalTitle" style="color: var(--primary); margin-bottom: 10px;">Issue Details</h3>
-        <hr style="margin-bottom: 15px; opacity: 0.1;">
-        <p id="modalBody" style="line-height: 1.6; color: #444; font-size: 15px;"></p>
-        <button onclick="closeModal()" style="margin-top: 20px; width: 100%; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;">Close Details</button>
+    <div style="background: white; margin: 10% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px;">
+        <h3 id="modalTitle">Details</h3><hr style="margin:10px 0; opacity:0.1;"><p id="modalBody" style="line-height:1.6;"></p>
+        <button onclick="closeModal()" class="btn-submit" style="margin-top:20px;">Close</button>
     </div>
 </div>
 
 <aside class="sidebar">
     <div class="sidebar-header">
-        <div class="panchayat-logo-container">
-            <img src="<%= user.profilePic ? user.profilePic : 'https://cdn-icons-png.flaticon.com/512/2555/2555022.png' %>">
-        </div>
-        <div style="font-weight: 800; color: var(--primary); font-size: 14px;">Gram Panchayat<br><%= user.panchayatName %></div>
+        <div class="panchayat-logo-container"><img src="<%= user.profilePic || 'https://via.placeholder.com/150' %>"></div>
+        <div style="font-weight: 800; color: var(--primary); font-size: 14px;"><%= user.panchayatName %></div>
     </div>
-    <nav class="nav-menu">
-        <a href="/panchayat/dashboard" class="nav-item active">📊 Dashboard</a>
-        <a href="#table-section" class="nav-item">📋 Grievance Queue</a>
-        <div onclick="openDrawer()" class="nav-item">⚙️ Office Settings</div>
-        <a href="/logout" class="nav-item" style="color: var(--danger); margin-top: 20px;">🚪 Logout Office</a>
+    <nav style="padding:20px; display:flex; flex-direction:column; gap:10px;">
+        <a href="/panchayat/dashboard" style="text-decoration:none; color:var(--primary); font-weight:700; padding:12px; background:var(--primary-soft); border-radius:10px;">📊 Dashboard</a>
+        <div onclick="openDrawer()" style="padding:12px; color:var(--text-sub); cursor:pointer; font-weight:600;">⚙️ Office Settings</div>
+        <a href="/logout" style="text-decoration:none; color:var(--danger); font-weight:700; padding:12px; margin-top:20px;">🚪 Logout</a>
     </nav>
 </aside>
 
 <main class="main-content">
-    <div class="card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-        <div>
-            <h1 style="font-size: 24px; color: var(--primary);">Office Dashboard</h1>
-            <p style="color: var(--text-sub);">Managing: <strong><%= user.panchayatName %></strong></p>
-        </div>
-        <button onclick="generatePDF()" style="background: var(--text-main); color:white; padding:12px 24px; border:none; border-radius:14px; font-weight:700; cursor:pointer;">📥 Export Report</button>
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div><h2>Gram Panchayat Office</h2><p>Managing: <strong><%= user.panchayatName %></strong></p></div>
+        <button onclick="generatePDF()" style="background:var(--text-main); color:white; padding:12px 24px; border:none; border-radius:14px; font-weight:700; cursor:pointer;">📥 Export Report</button>
     </div>
 
-    <div class="grid-2-1" style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px;">
+    <div class="grid-2-1">
         <div class="card">
-            <h3>📊 Analytics</h3>
+            <h3>📊 Category Analytics</h3>
             <div style="height: 250px; margin-top: 20px;"><canvas id="complaintsChart"></canvas></div>
         </div>
         <div class="card">
-            <h3>📢 News Broadcast</h3>
-            <form action="/admin/post-news" method="POST" style="margin-top: 15px;">
-                <input type="text" name="title" placeholder="News Title" class="input-field" required>
-                <textarea name="content" placeholder="Enter details..." class="input-field" style="height: 80px;" required></textarea>
-                <button type="submit" style="width:100%; background:var(--primary); color:white; padding:12px; border:none; border-radius:12px; font-weight:700; cursor:pointer;">Post Update</button>
+            <h3>💰 Post New Fund/Scheme</h3>
+            <form action="/admin/add-scheme" method="POST" style="margin-top: 15px;">
+                <input type="text" name="name" placeholder="Scheme Name" class="input-field" required>
+                <input type="text" name="fundAllocated" placeholder="Amount (e.g. ₹5 Lakh)" class="input-field" required>
+                <select name="status" class="input-field"><option>Announced</option><option>Ongoing</option><option>Completed</option></select>
+                <button type="submit" class="btn-submit">Broadcast Scheme</button>
             </form>
         </div>
     </div>
 
-    <div class="card" style="padding: 20px; display: flex; gap: 15px; align-items: center; background: #f1f5f9; margin-bottom: 20px; flex-wrap: wrap;">
-        <input type="text" id="smartSearch" placeholder="🔍 Search Citizen or Issue..." class="input-field" style="flex: 1; margin-bottom: 0;">
-        <select id="statusFilter" class="input-field" style="width: auto; margin-bottom: 0;">
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In-Progress</option>
-            <option value="resolved">Resolved</option>
-        </select>
+    <div class="card">
+        <h3>📜 Pending Certificate Requests</h3>
+        <div style="overflow-x:auto; margin-top:15px;">
+            <table style="width:100%; font-size:13px;">
+                <thead><tr style="text-align:left; color:var(--text-sub);"><th>Citizen</th><th>Request Type</th><th>Reason</th><th>Action</th></tr></thead>
+                <tbody>
+                    <% if(certRequests && certRequests.length > 0) { %>
+                        <% certRequests.forEach(req => { %>
+                            <tr>
+                                <td><b><%= req.citizen ? req.citizen.name : 'Unknown' %></b></td>
+                                <td><span style="padding:4px 8px; background:var(--primary-soft); border-radius:5px;"><%= req.type %></span></td>
+                                <td><%= req.reason %></td>
+                                <td>
+                                    <form action="/admin/certificate/approve/<%= req._id %>" method="POST" enctype="multipart/form-data" style="display:flex; gap:10px;">
+                                        <input type="file" name="certFile" required style="font-size:10px;">
+                                        <button type="submit" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:8px; cursor:pointer;">Approve</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %> <tr><td colspan="4" style="text-align:center; padding:20px;">No pending requests.</td></tr> <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="card" id="table-section" style="overflow-x: auto;">
-        <h3>Grievance Management</h3>
+        <h3>📋 Grievance Management Queue</h3>
         <table id="complaintTable">
-            <thead>
-                <tr>
-                    <th>Citizen</th>
-                    <th>Category & AI</th>
-                    <th>Details</th>
-                    <th>Evidence</th>
-                    <th>Status</th>
-                    <th>Update</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="complaintTableBody">
+            <thead><tr style="text-align:left; font-size:11px; color:var(--text-sub);"><th>Citizen</th><th>Issue & AI</th><th>Photo</th><th>Status</th><th>Update</th></tr></thead>
+            <tbody>
                 <% complaints.forEach(complaint => { %>
-                <tr style="font-size: 14px;">
-                    <td><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
-                    <td>
-                        <div><%= complaint.category %></div>
-                        <div class="ai-badge" style="<%= complaint.aiPriority === 'High' ? 'background: var(--danger)' : '' %>">
-                            🤖 AI: <%= complaint.aiPriority %>
-                        </div>
-                    </td>
-                    <td>
-                        <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, "\\\'") %>')" 
-                                style="background: var(--primary-soft); color: var(--primary); border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;">
-                            View
-                        </button>
-                    </td>
-                    <td>
-                        <% if(complaint.imageUrl) { %>
-                            <img src="<%= complaint.imageUrl %>" style="width: 45px; height: 45px; border-radius: 8px; object-fit: cover; cursor:pointer;" onclick="window.open(this.src)">
-                        <% } else { %> No Photo <% } %>
-                    </td>
-                    <td><span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span></td>
-                    <td>
-                        <form action="/complaints/update/<%= complaint._id %>" method="POST">
-                            <select name="status" onchange="this.form.submit()" style="padding: 5px; border-radius: 8px; font-size: 12px;">
-                                <option value="Pending" <%= complaint.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                <option value="In-Progress" <%= complaint.status === 'In-Progress' ? 'selected' : '' %>>In-Progress</option>
-                                <option value="Resolved" <%= complaint.status === 'Resolved' ? 'selected' : '' %>>Resolved</option>
-                                <option value="Rejected" <%= complaint.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
-                            </select>
-                        </form>
-                    </td>
-                    <td>
-                        <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Delete this record?')">
-                            <button type="submit" style="background:none; border:none; cursor:pointer; font-size:18px;">🗑️</button>
-                        </form>
-                    </td>
-                </tr>
+                    <tr>
+                        <td><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
+                        <td><%= complaint.category %><br><div class="ai-badge">🤖 AI: <%= complaint.aiPriority %></div></td>
+                        <td><img src="<%= complaint.imageUrl %>" style="width:45px; height:45px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)"></td>
+                        <td><span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span></td>
+                        <td>
+                            <form action="/complaints/update/<%= complaint._id %>" method="POST">
+                                <select name="status" onchange="this.form.submit()" style="padding:5px; border-radius:8px;">
+                                    <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
+                                    <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
                 <% }) %>
             </tbody>
         </table>
@@ -226,63 +146,35 @@
 </main>
 
 <div class="drawer" id="adminDrawer">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h2>⚙️ Office Settings</h2>
-        <button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">×</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+        <h3>⚙️ Office Settings</h3><button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
     </div>
     <form action="/user/update" method="POST" enctype="multipart/form-data">
-        <label style="font-size: 11px; font-weight: 800; color: var(--text-sub);">Panchayat Name</label>
-        <input type="text" name="panchayatName" value="<%= user.panchayatName %>" class="input-field">
-        <label style="font-size: 11px; font-weight: 800; color: var(--text-sub);">Officer Name</label>
-        <input type="text" name="name" value="<%= user.name %>" class="input-field">
-        <label style="font-size: 11px; font-weight: 800; color: var(--text-sub);">Designation</label>
+        <label style="font-size:12px; font-weight:700;">Designation</label>
         <input type="text" name="designation" value="<%= user.designation %>" class="input-field">
-        <label style="font-size: 11px; font-weight: 800; color: var(--text-sub);">Logo Update</label>
+        <label style="font-size:12px; font-weight:700;">Panchayat Logo</label>
         <input type="file" name="profilePic" class="input-field">
-        <button type="submit" style="width:100%; background:var(--primary); color:white; padding:15px; border:none; border-radius:12px; font-weight:700; margin-top:10px; cursor:pointer;">Save Updates</button>
+        <button type="submit" class="btn-submit" style="margin-top:20px;">Save Changes</button>
     </form>
 </div>
 
 <script>
-    function openDrawer() { document.getElementById('adminDrawer').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
-    function closeDrawer() { document.getElementById('adminDrawer').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
-
-    function openModal(title, body) {
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalBody').innerText = body;
-        document.getElementById('descModal').style.display = 'block';
-    }
+    function openDrawer() { document.getElementById('adminDrawer').classList.add('active'); document.getElementById('overlay').style.display = 'block'; }
+    function closeDrawer() { document.getElementById('adminDrawer').classList.remove('active'); document.getElementById('overlay').style.display = 'none'; }
     function closeModal() { document.getElementById('descModal').style.display = 'none'; }
-
-    // Search Logic
-    document.getElementById('smartSearch').addEventListener('keyup', filterTable);
-    document.getElementById('statusFilter').addEventListener('change', filterTable);
-
-    function filterTable() {
-        let searchValue = document.getElementById('smartSearch').value.toLowerCase();
-        let statusValue = document.getElementById('statusFilter').value.toLowerCase();
-        document.querySelectorAll("#complaintTableBody tr").forEach(row => {
-            let text = row.innerText.toLowerCase();
-            let status = row.querySelector('.status-pill').innerText.toLowerCase();
-            row.style.display = (text.includes(searchValue) && (statusValue === "all" || status === statusValue)) ? "" : "none";
-        });
-    }
-
-    // Chart
+    
+    // Analytics
     const rawData = <%- JSON.stringify(complaints) %>;
-    const counts = {};
-    rawData.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
+    const counts = {}; rawData.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
     new Chart(document.getElementById('complaintsChart').getContext('2d'), {
-        type: 'bar',
-        data: { labels: Object.keys(counts), datasets: [{ label: 'Complaints', data: Object.values(counts), backgroundColor: '#1a7431', borderRadius: 8 }] },
+        type: 'bar', data: { labels: Object.keys(counts), datasets: [{ label: 'Complaints', data: Object.values(counts), backgroundColor: '#1a7431', borderRadius: 8 }] },
         options: { responsive: true, maintainAspectRatio: false }
     });
 
     // PDF Export
     function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text("Official Report - <%= user.panchayatName %>", 14, 20);
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        doc.text("Panchayat Grievance Report", 14, 20);
         doc.autoTable({ html: '#complaintTable', startY: 30 });
         doc.save("Panchayat_Report.pdf");
     }

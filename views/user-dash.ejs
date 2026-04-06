@@ -24,7 +24,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; }
 
-        /* --- 1. FIXED TOP NAVBAR --- */
+        /* --- FIXED NAVIGATION --- */
         .top-navbar {
             position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
             background: var(--white); display: flex; justify-content: space-between;
@@ -36,7 +36,6 @@
         .user-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .user-nav-info img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
 
-        /* --- 2. FIXED SIDEBAR --- */
         .sidebar {
             width: 260px; background: var(--white); border-right: 1px solid #e2e8f0;
             display: flex; flex-direction: column; padding: 20px; position: fixed;
@@ -44,21 +43,18 @@
             z-index: 1000; transition: 0.3s;
         }
 
-        /* --- 3. MAIN CONTENT (Scrollable) --- */
         .main-wrapper {
             margin-left: 260px; padding: 30px; padding-top: calc(var(--nav-height) + 30px);
             width: calc(100% - 260px); min-height: 100vh;
         }
 
-        /* Responsive Layout */
         @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); } /* Mobile pe sidebar chhupa diya */
+            .sidebar { transform: translateX(-100%); }
             .main-wrapper { margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; }
             .content-grid { grid-template-columns: 1fr !important; }
             .stats-grid { grid-template-columns: 1fr 1fr !important; }
         }
 
-        /* UI Components */
         .nav-menu { display: flex; flex-direction: column; gap: 8px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-decoration: none; color: var(--text-sub); font-weight: 600; border-radius: 14px; transition: 0.3s; cursor: pointer; }
         .nav-item.active, .nav-item:hover { background: var(--primary-light); color: var(--primary); }
@@ -92,9 +88,10 @@
     <aside class="sidebar">
         <nav class="nav-menu">
             <a href="/user/dashboard" class="nav-item active">🏠 Dashboard Home</a>
+            
             <div style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 15px 0;">
                 <h4 style="font-size: 13px; color: var(--primary);">📢 Village News</h4>
-                <div style="max-height: 120px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
+                <div style="max-height: 150px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
                     <% if(news && news.length > 0) { %>
                         <% news.forEach(item => { %>
                             <p><strong><%= item.title %></strong></p><hr style="opacity: 0.1; margin: 5px 0;">
@@ -102,6 +99,7 @@
                     <% } else { %> <p>No updates.</p> <% } %>
                 </div>
             </div>
+
             <a onclick="openDrawer()" class="nav-item">👤 Profile Settings</a>
             <a href="/logout" class="nav-item" style="color: var(--danger);">🚪 Logout Session</a>
         </nav>
@@ -116,32 +114,39 @@
         </div>
 
         <div class="content-grid">
-            <div class="card">
-                <h3>📝 Raise New Issue</h3>
-                <form action="/complaints/add" method="POST" enctype="multipart/form-data">
-                    <label style="font-size: 12px; font-weight: 700;">Issue Category</label>
-                    <select name="category" class="input-field">
-                        <option>Road Damage</option><option>Water Leakage</option><option>Street Light</option><option>Sanitation</option>
-                    </select>
+            <div class="col-left">
+                <div class="card">
+                    <h3>📝 Raise New Issue</h3>
+                    <form action="/complaints/add" method="POST" enctype="multipart/form-data">
+                        <select name="category" class="input-field">
+                            <option>Road Damage</option><option>Water Leakage</option><option>Street Light</option><option>Sanitation</option>
+                        </select>
+                        <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Explain Problem..."></textarea>
+                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700;">🎤 Tap to Speak</button>
+                        <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1.5px dashed #cbd5e1; text-align: center;">
+                            <input type="hidden" name="latitude" id="lat"><input type="hidden" name="longitude" id="lon">
+                            <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="border: 1px solid var(--primary); background: white; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 700;">📍 Tag My Location</button>
+                        </div>
+                        <input type="file" name="complaintImage" class="input-field">
+                        <button type="submit" class="btn-submit">Submit Report</button>
+                    </form>
+                </div>
 
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Explain Problem</label>
-                    <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Ward no, landmark..."></textarea>
-                    
-                    <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak (Marathi/Hindi)</button>
-
-                    <div style="background: #f8fafc; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1.5px dashed #cbd5e1; text-align: center;">
-                        <input type="hidden" name="latitude" id="lat"><input type="hidden" name="longitude" id="lon">
-                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="border: 1px solid var(--primary); background: white; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: 700;">📍 Tag My Location</button>
-                    </div>
-
-                    <label style="font-size: 12px; font-weight: 700; display: block; margin-top: 15px;">Upload Photo</label>
-                    <input type="file" name="complaintImage" class="input-field">
-                    
-                    <button type="submit" class="btn-submit">Submit Report</button>
-                </form>
+                <div class="card">
+                    <h3>📜 Request Digital Certificate</h3>
+                    <form action="/certificates/request" method="POST" style="margin-top:15px;">
+                        <select name="type" class="input-field">
+                            <option>Birth Certificate</option>
+                            <option>Death Certificate</option>
+                            <option>Income Certificate</option>
+                        </select>
+                        <textarea name="reason" class="input-field" placeholder="Reason for request..."></textarea>
+                        <button type="submit" class="btn-submit" style="background: var(--accent); color: #000;">Submit Request</button>
+                    </form>
+                </div>
             </div>
 
-            <div class="main-col">
+            <div class="col-right">
                 <div class="card">
                     <h3 style="margin-bottom: 20px;">📊 Status Analytics</h3>
                     <div style="height: 200px; position: relative;">
@@ -150,7 +155,31 @@
                 </div>
 
                 <div class="card" style="overflow-x: auto;">
-                    <h3>📋 Recent Activity</h3>
+                    <h3>💰 Gram Nidhi & Scheme Tracker</h3>
+                    <table style="width:100%; margin-top:15px; border-collapse: collapse; font-size: 13px;">
+                        <thead>
+                            <tr style="text-align: left; color: var(--text-sub);">
+                                <th>Scheme</th><th>Fund</th><th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(schemes && schemes.length > 0) { %>
+                                <% schemes.forEach(s => { %>
+                                    <tr style="border-top:1px solid #eee;">
+                                        <td style="padding:10px 0;"><b><%= s.name %></b></td>
+                                        <td><%= s.fundAllocated %></td>
+                                        <td><span style="font-size: 10px; padding: 4px 8px; background: var(--primary-light); border-radius: 6px;"><%= s.status %></span></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="3" style="padding:20px; text-align:center;">No schemes available.</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card" style="overflow-x: auto;">
+                    <h3>📋 Your Activity</h3>
                     <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
                         <thead><tr style="text-align: left; font-size: 11px; color: var(--text-sub);"><th>Issue</th><th>Status</th></tr></thead>
                         <tbody>
@@ -170,13 +199,13 @@
     <div class="drawer" id="profileDrawer">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <h3>👤 Edit Profile</h3>
-            <button onclick="closeDrawer()" style="background:none; border:none; font-size:24px;">&times;</button>
+            <button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
         <form action="/user/update" method="POST" enctype="multipart/form-data">
             <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Full Name">
             <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field" placeholder="Mobile">
             <textarea name="address" class="input-field" placeholder="Address"><%= user.address %></textarea>
-            <label style="font-size: 11px; display: block; margin-top: 10px;">Update Profile Photo</label>
+            <label style="font-size: 11px; display: block; margin-top: 10px;">New Profile Pic</label>
             <input type="file" name="profilePic" class="input-field">
             <button type="submit" class="btn-submit">Save Changes</button>
         </form>
@@ -199,10 +228,7 @@
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'mr-IN';
-        document.getElementById('start-voice-btn').onclick = () => { 
-            recognition.start(); 
-            document.getElementById('start-voice-btn').innerText = "Listening..."; 
-        };
+        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); document.getElementById('start-voice-btn').innerText = "Listening..."; };
         recognition.onresult = (e) => { 
             document.getElementById('complaint_desc').value += e.results[0][0].transcript + " ";
             document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak";

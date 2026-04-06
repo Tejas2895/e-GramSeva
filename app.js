@@ -1,4 +1,6 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+const Certificate = require('./models/Certificate');
+const Scheme = require('./models/Scheme');
 const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
@@ -213,3 +215,36 @@ app.post('/admin/post-news', async (req, res) => {
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
 app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));
+
+
+
+
+
+
+
+
+
+// --- User Side: Request Certificate ---
+app.post('/certificates/request', async (req, res) => {
+    const { type, reason } = req.body;
+    await Certificate.create({ citizen: req.session.userId, type, reason });
+    res.redirect('/user/dashboard');
+});
+
+// --- Admin Side: Add New Scheme/Fund ---
+app.post('/admin/add-scheme', async (req, res) => {
+    const { name, fundAllocated, status } = req.body;
+    await Scheme.create({ name, fundAllocated, status });
+    res.redirect('/panchayat/dashboard');
+});
+
+// --- Admin Side: Approve & Upload Certificate ---
+// (Note: Isme Cloudinary upload wala logic same complaint photo jaisa lagega)
+app.post('/admin/certificate/approve/:id', upload.single('certFile'), async (req, res) => {
+    const result = await cloudinary.uploader.upload(req.file.path);
+    await Certificate.findByIdAndUpdate(req.params.id, {
+        status: 'Approved',
+        issuedFile: result.secure_url
+    });
+    res.redirect('/panchayat/dashboard');
+});
