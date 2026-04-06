@@ -59,20 +59,26 @@
 
         /* --- UI ELEMENTS --- */
         .card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: var(--shadow); border: 1px solid #f1f5f9; margin-bottom: 30px; }
-        
-        /* 3-Column Grid for Tools */
         .grid-tools { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px; }
         
         .input-field { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; outline: none; transition: 0.3s; font-size: 13px; }
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
         
         .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .pending { background: #fff7ed; color: #c2410c; } .resolved { background: #f0fdf4; color: #166534; }
+        .pending { background: #fff7ed; color: #c2410c; } 
+        .in-progress { background: #eff6ff; color: #1d4ed8; }
+        .resolved { background: #f0fdf4; color: #166534; }
+        .rejected { background: #fef2f2; color: #b91c1c; }
+
         .ai-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         td { padding: 15px; background: #fff; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         
+        /* Modal Style */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; position: relative; }
+
         .drawer { position: fixed; right: -450px; top: 0; width: 420px; height: 100%; background: white; z-index: 2001; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
         .drawer.active { right: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1500; }
@@ -85,6 +91,15 @@
 <body>
 
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<div id="descModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle" style="color: var(--primary);">Issue Description</h3>
+        <hr style="margin: 15px 0; opacity: 0.1;">
+        <p id="modalBody" style="line-height: 1.6; color: var(--text-main);"></p>
+        <button onclick="closeModal()" class="btn-submit" style="margin-top: 20px;">Close Details</button>
+    </div>
+</div>
 
 <nav class="top-navbar">
     <a href="/" class="nav-logo">🌿 e-Gram<span>Seva</span></a>
@@ -152,10 +167,15 @@
                                 <td><span style="padding:4px 8px; background:var(--primary-soft); border-radius:5px;"><%= req.type %></span></td>
                                 <td><%= req.reason %></td>
                                 <td>
-                                    <form action="/admin/certificate/approve/<%= req._id %>" method="POST" enctype="multipart/form-data" style="display:flex; gap:8px;">
-                                        <input type="file" name="certFile" required style="font-size:10px; width:120px;">
-                                        <button type="submit" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:8px; cursor:pointer;">Approve</button>
-                                    </form>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <form action="/admin/certificate/approve/<%= req._id %>" method="POST" enctype="multipart/form-data" style="display:flex; gap:8px;">
+                                            <input type="file" name="certFile" required style="font-size:10px; width:120px;">
+                                            <button type="submit" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:8px; cursor:pointer;">Approve</button>
+                                        </form>
+                                        <form action="/admin/certificate/reject/<%= req._id %>" method="POST">
+                                            <button type="submit" style="background:var(--danger); color:white; border:none; padding:5px 10px; border-radius:8px; cursor:pointer;">Reject</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <% }) %>
@@ -171,19 +191,27 @@
             <input type="text" id="smartSearch" placeholder="🔍 Search Issue..." class="input-field" style="margin-bottom:0; width: 220px; padding: 8px;">
         </div>
         <table id="complaintTable">
-            <thead><tr style="text-align:left; font-size:11px; color:var(--text-sub);"><th>Citizen</th><th>Issue & AI</th><th>Evidence</th><th>Status</th><th>Update</th></tr></thead>
+            <thead><tr style="text-align:left; font-size:11px; color:var(--text-sub);"><th>Citizen</th><th>Issue & AI</th><th>Details</th><th>Evidence</th><th>Status</th><th>Update Status</th></tr></thead>
             <tbody id="complaintTableBody">
                 <% complaints.forEach(complaint => { %>
                     <tr>
                         <td><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
                         <td><%= complaint.category %><br><div class="ai-badge">🤖 AI: <%= complaint.aiPriority %></div></td>
+                        <td>
+                            <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" 
+                                style="background:var(--primary-soft); color:var(--primary); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size: 11px; font-weight: 700;">
+                                View
+                            </button>
+                        </td>
                         <td><img src="<%= complaint.imageUrl %>" style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)"></td>
                         <td><span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span></td>
                         <td>
                             <form action="/complaints/update/<%= complaint._id %>" method="POST">
-                                <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px;">
+                                <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px; outline: none; border: 1px solid #ddd;">
                                     <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
+                                    <option value="In-Progress" <%= complaint.status==='In-Progress'?'selected':'' %>>In-Progress</option>
                                     <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
+                                    <option value="Rejected" <%= complaint.status==='Rejected'?'selected':'' %>>Rejected</option>
                                 </select>
                             </form>
                         </td>
@@ -208,6 +236,20 @@
 <script>
     function openDrawer() { document.getElementById('adminDrawer').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
     function closeDrawer() { document.getElementById('adminDrawer').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
+    
+    // Modal Functions
+    function openModal(title, body) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalBody').innerText = body;
+        document.getElementById('descModal').style.display = 'block';
+        document.getElementById('overlay').classList.add('active');
+    }
+    function closeModal() {
+        document.getElementById('descModal').style.display = 'none';
+        if(!document.getElementById('adminDrawer').classList.contains('active')) {
+            document.getElementById('overlay').classList.remove('active');
+        }
+    }
 
     // Search
     document.getElementById('smartSearch').addEventListener('keyup', function() {
