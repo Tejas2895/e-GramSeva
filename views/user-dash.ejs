@@ -8,46 +8,22 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-
-        :root {
-            --primary: #2D6A4F;
-            --primary-light: #D8F3DC;
-            --accent: #FFB703;
-            --bg: #f8fafc;
-            --white: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --danger: #e63946;
-            --nav-height: 70px;
-        }
-
+        :root { --primary: #2D6A4F; --primary-light: #D8F3DC; --accent: #FFB703; --bg: #f8fafc; --white: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --danger: #e63946; --nav-height: 70px; }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; }
 
         /* --- FIXED NAVIGATION --- */
-        .top-navbar {
-            position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height);
-            background: var(--white); display: flex; justify-content: space-between;
-            align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100;
-        }
+        .top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--white); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100; }
         .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
         .nav-logo span { color: var(--accent); }
-
         .user-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .user-nav-info img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
 
-        .sidebar {
-            width: 260px; background: var(--white); border-right: 1px solid #e2e8f0;
-            display: flex; flex-direction: column; padding: 20px; position: fixed;
-            height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0;
-            z-index: 1000; transition: 0.3s;
-        }
+        .sidebar { width: 260px; background: var(--white); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 20px; position: fixed; height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; transition: 0.3s; }
+        .main-wrapper { margin-left: 260px; padding: 30px; padding-top: calc(var(--nav-height) + 30px); width: calc(100% - 260px); min-height: 100vh; }
 
-        .main-wrapper {
-            margin-left: 260px; padding: 30px; padding-top: calc(var(--nav-height) + 30px);
-            width: calc(100% - 260px); min-height: 100vh;
-        }
-
+        /* Mobile Layout */
         @media (max-width: 992px) {
             .sidebar { transform: translateX(-100%); }
             .main-wrapper { margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; }
@@ -59,11 +35,12 @@
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-decoration: none; color: var(--text-sub); font-weight: 600; border-radius: 14px; transition: 0.3s; cursor: pointer; }
         .nav-item.active, .nav-item:hover { background: var(--primary-light); color: var(--primary); }
 
+        /* UI Cards */
         .card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #f1f5f9; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { background: var(--white); padding: 18px; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; }
-        
         .content-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 30px; }
+        
         .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; }
         .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; }
 
@@ -91,7 +68,7 @@
             
             <div style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 15px 0;">
                 <h4 style="font-size: 13px; color: var(--primary);">📢 Village News</h4>
-                <div style="max-height: 150px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
+                <div style="max-height: 120px; overflow-y: auto; font-size: 12px; margin-top: 8px;">
                     <% if(news && news.length > 0) { %>
                         <% news.forEach(item => { %>
                             <p><strong><%= item.title %></strong></p><hr style="opacity: 0.1; margin: 5px 0;">
@@ -110,7 +87,7 @@
             <div class="stat-box">⏳ <div><p style="font-size: 11px;">Pending</p><b><%= complaints.filter(c => c.status === 'Pending').length %></b></div></div>
             <div class="stat-box">🔄 <div><p style="font-size: 11px;">In-Progress</p><b><%= complaints.filter(c => c.status === 'In-Progress').length %></b></div></div>
             <div class="stat-box">✅ <div><p style="font-size: 11px;">Resolved</p><b><%= complaints.filter(c => c.status === 'Resolved').length %></b></div></div>
-            <div class="stat-box">❌ <div><p style="font-size: 11px;">Rejected</p><b><%= complaints.filter(c => c.status === 'Rejected').length %></b></div></div>
+            <div class="stat-box">📜 <div><p style="font-size: 11px;">Certs</p><b><%= certificates.filter(cert => cert.status === 'Approved').length %></b></div></div>
         </div>
 
         <div class="content-grid">
@@ -136,9 +113,7 @@
                     <h3>📜 Request Digital Certificate</h3>
                     <form action="/certificates/request" method="POST" style="margin-top:15px;">
                         <select name="type" class="input-field">
-                            <option>Birth Certificate</option>
-                            <option>Death Certificate</option>
-                            <option>Income Certificate</option>
+                            <option>Birth Certificate</option><option>Death Certificate</option><option>Income Certificate</option>
                         </select>
                         <textarea name="reason" class="input-field" placeholder="Reason for request..."></textarea>
                         <button type="submit" class="btn-submit" style="background: var(--accent); color: #000;">Submit Request</button>
@@ -149,31 +124,41 @@
             <div class="col-right">
                 <div class="card">
                     <h3 style="margin-bottom: 20px;">📊 Status Analytics</h3>
-                    <div style="height: 200px; position: relative;">
-                        <canvas id="userStatusChart"></canvas>
-                    </div>
+                    <div style="height: 200px; position: relative;"><canvas id="userStatusChart"></canvas></div>
+                </div>
+
+                <div class="card" style="overflow-x: auto;">
+                    <h3>📜 Your Certificates</h3>
+                    <table style="width:100%; margin-top:15px; border-collapse: collapse; font-size: 13px;">
+                        <thead><tr style="text-align: left; color: var(--text-sub);"><th>Type</th><th>Status</th><th>Download</th></tr></thead>
+                        <tbody>
+                            <% if(certificates && certificates.length > 0) { %>
+                                <% certificates.forEach(cert => { %>
+                                    <tr style="border-top:1px solid #eee;">
+                                        <td style="padding:10px 0;"><b><%= cert.type %></b></td>
+                                        <td><span style="font-size: 10px; padding: 4px 8px; background: #f1f5f9; border-radius: 6px;"><%= cert.status %></span></td>
+                                        <td>
+                                            <% if(cert.status === 'Approved') { %>
+                                                <a href="<%= cert.issuedFile %>" target="_blank" style="color: var(--primary); font-weight: 700;">⬇️ Download</a>
+                                            <% } else { %> - <% } %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %> <tr><td colspan="3" style="text-align:center; padding:15px;">No requests found.</td></tr> <% } %>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="card" style="overflow-x: auto;">
                     <h3>💰 Gram Nidhi & Scheme Tracker</h3>
                     <table style="width:100%; margin-top:15px; border-collapse: collapse; font-size: 13px;">
-                        <thead>
-                            <tr style="text-align: left; color: var(--text-sub);">
-                                <th>Scheme</th><th>Fund</th><th>Status</th>
-                            </tr>
-                        </thead>
+                        <thead><tr style="text-align: left; color: var(--text-sub);"><th>Scheme</th><th>Fund</th><th>Status</th></tr></thead>
                         <tbody>
                             <% if(schemes && schemes.length > 0) { %>
                                 <% schemes.forEach(s => { %>
-                                    <tr style="border-top:1px solid #eee;">
-                                        <td style="padding:10px 0;"><b><%= s.name %></b></td>
-                                        <td><%= s.fundAllocated %></td>
-                                        <td><span style="font-size: 10px; padding: 4px 8px; background: var(--primary-light); border-radius: 6px;"><%= s.status %></span></td>
-                                    </tr>
+                                    <tr style="border-top:1px solid #eee;"><td style="padding:10px 0;"><b><%= s.name %></b></td><td><%= s.fundAllocated %></td><td><span style="font-size: 10px; padding: 4px 8px; background: var(--primary-light); border-radius: 6px;"><%= s.status %></span></td></tr>
                                 <% }) %>
-                            <% } else { %>
-                                <tr><td colspan="3" style="padding:20px; text-align:center;">No schemes available.</td></tr>
-                            <% } %>
+                            <% } else { %> <tr><td colspan="3" style="padding:20px; text-align:center;">No schemes available.</td></tr> <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -185,7 +170,7 @@
                         <tbody>
                             <% complaints.forEach(c => { %>
                                 <tr style="border-top: 1px solid #f1f5f9; font-size: 14px;">
-                                    <td style="padding: 12px 0;"><b><%= c.category %></b><br><small>🤖 <%= c.aiPriority %></small></td>
+                                    <td style="padding: 12px 0;"><b><%= c.category %></b><br><small>🤖 AI: <%= c.aiPriority %></small></td>
                                     <td><span style="padding: 4px 8px; border-radius: 6px; font-size: 10px; background: #f1f5f9;"><%= c.status %></span></td>
                                 </tr>
                             <% }) %>
@@ -198,14 +183,13 @@
 
     <div class="drawer" id="profileDrawer">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h3>👤 Edit Profile</h3>
-            <button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            <h3>👤 Edit Profile</h3><button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
         <form action="/user/update" method="POST" enctype="multipart/form-data">
             <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Full Name">
             <input type="tel" name="mobile" value="<%= user.mobile %>" class="input-field" placeholder="Mobile">
             <textarea name="address" class="input-field" placeholder="Address"><%= user.address %></textarea>
-            <label style="font-size: 11px; display: block; margin-top: 10px;">New Profile Pic</label>
+            <label style="font-size: 11px; display: block; margin-top: 10px;">Update Profile Photo</label>
             <input type="file" name="profilePic" class="input-field">
             <button type="submit" class="btn-submit">Save Changes</button>
         </form>
@@ -228,7 +212,10 @@
 
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'mr-IN';
-        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); document.getElementById('start-voice-btn').innerText = "Listening..."; };
+        document.getElementById('start-voice-btn').onclick = () => { 
+            recognition.start(); 
+            document.getElementById('start-voice-btn').innerText = "Listening..."; 
+        };
         recognition.onresult = (e) => { 
             document.getElementById('complaint_desc').value += e.results[0][0].transcript + " ";
             document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak";
