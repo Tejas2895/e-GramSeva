@@ -8,57 +8,72 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        :root { --primary: #2D6A4F; --primary-light: #D8F3DC; --accent: #FFB703; --bg: #f8fafc; --white: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --danger: #e63946; --nav-height: 70px; }
+        :root { --primary: #2D6A4F; --primary-light: #e8f5e9; --accent: #FFB703; --bg: #f8fafc; --white: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --danger: #e63946; --nav-height: 70px; --sidebar-width: 260px; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
 
-        /* --- FIXED NAVIGATION --- */
-        .top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--white); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1100; }
-        .nav-logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+        /* --- NAVIGATION --- */
+        .top-navbar { position: fixed; top: 0; left: 0; width: 100%; height: var(--nav-height); background: var(--white); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); z-index: 1100; border-bottom: 1px solid #f1f5f9; }
+        .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); text-decoration: none; }
         .nav-logo span { color: var(--accent); }
-        .user-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-        .user-nav-info img { width: 35px; height: 35px; border-radius: 10px; object-fit: cover; border: 1px solid #eee; }
+        .user-nav-info { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 5px 10px; border-radius: 12px; transition: 0.2s; }
+        .user-nav-info:hover { background: var(--bg); }
+        .user-nav-info img { width: 38px; height: 38px; border-radius: 10px; object-fit: cover; border: 2px solid var(--primary-light); }
 
         /* --- SIDEBAR --- */
-        .sidebar { width: 260px; background: var(--white); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 20px; position: fixed; height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; transition: 0.3s; }
-        .nav-menu { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-decoration: none; color: var(--text-sub); font-weight: 600; border-radius: 14px; transition: 0.3s; font-size: 14px; }
-        .nav-item:hover, .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        .sidebar { width: var(--sidebar-width); background: var(--white); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 20px; position: fixed; height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; }
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; text-decoration: none; color: var(--text-sub); font-weight: 600; border-radius: 12px; transition: 0.3s; font-size: 14px; border: 1px solid transparent; }
+        .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(45, 106, 79, 0.2); }
         
-        .main-wrapper { margin-left: 260px; padding: 30px; padding-top: calc(var(--nav-height) + 30px); width: calc(100% - 260px); min-height: 100vh; }
+        .main-wrapper { margin-left: var(--sidebar-width); padding: 30px; padding-top: calc(var(--nav-height) + 30px); width: calc(100% - var(--sidebar-width)); }
 
-        /* UI Components */
-        .card { background: var(--white); border-radius: 24px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #f1f5f9; }
+        /* --- UI CARDS --- */
+        .card { background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); margin-bottom: 25px; border: 1px solid #f1f5f9; }
+        .card h3 { font-size: 17px; font-weight: 700; margin-bottom: 20px; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-box { background: var(--white); padding: 18px; border-radius: 20px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; }
+        .stat-box { background: var(--white); padding: 20px; border-radius: 18px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .stat-box:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.04); }
+        .stat-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+
         .content-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 30px; }
-        
-        .input-field { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; }
-        .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; }
+        .input-field { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-top: 5px; outline: none; transition: 0.3s; font-size: 14px; }
+        .input-field:focus { border-color: var(--primary); background: #fff; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        .btn-submit:hover { opacity: 0.9; transform: scale(1.01); }
 
-        /* Status Badges */
-        .status-pill { padding: 5px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        /* --- TABLE & HISTORY --- */
+        .history-container { width: 100%; overflow-x: auto; }
+        .history-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; }
+        .history-table th { padding: 12px 20px; text-align: left; color: var(--text-sub); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .history-table tr { background: white; }
+        .history-table td { padding: 18px 20px; background: white; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .history-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 15px; border-bottom-left-radius: 15px; }
+        .history-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 15px; border-bottom-right-radius: 15px; }
+
+        /* Status & AI Badges */
+        .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .pending { background: #fff7ed; color: #c2410c; } .in-progress { background: #eff6ff; color: #1d4ed8; } .resolved { background: #f0fdf4; color: #166534; } .rejected { background: #fef2f2; color: #b91c1c; }
-        .ai-badge { background: #f1f5f9; color: #64748b; padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
-        .ai-high { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; }
-
-        /* Modern History List */
-        .history-table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: -12px; }
-        .history-table tr { background: #fff; transition: 0.2s; }
-        .history-table td { padding: 20px; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .history-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
-        .history-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
+        .ai-badge { background: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; }
+        .ai-high { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
 
         /* Modals */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
-        .modal-content { background: white; margin: 15% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; }
-        .drawer { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.4s; padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 12% auto; padding: 35px; border-radius: 24px; width: 90%; max-width: 550px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); }
+        .drawer { position: fixed; right: -420px; top: 0; width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 40px; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
         .drawer.active { right: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1500; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1500; }
         .overlay.active { display: block; }
         
-        @media (max-width: 992px) { .sidebar { display: none; } .main-wrapper { margin-left: 0; width: 100%; } .content-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 992px) { 
+            .sidebar { transform: translateX(-100%); } 
+            .main-wrapper { margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; } 
+            .content-grid { grid-template-columns: 1fr; } 
+            .stats-grid { grid-template-columns: 1fr 1fr; } 
+        }
     </style>
 </head>
 <body>
@@ -67,50 +82,60 @@
 
     <div id="descModal" class="modal">
         <div class="modal-content">
-            <h3 id="modalTitle" style="color: var(--primary);">Issue Description</h3>
-            <hr style="margin: 15px 0; opacity: 0.1;">
-            <p id="modalBody" style="line-height: 1.6; color: var(--text-main); font-size: 14px;"></p>
-            <button onclick="closeModal()" class="btn-submit" style="margin-top: 20px;">Close Window</button>
+            <h3 id="modalTitle" style="margin-bottom: 10px;">Issue Details</h3>
+            <p id="modalBody" style="line-height: 1.7; color: var(--text-sub); font-size: 15px; background: #f8fafc; padding: 20px; border-radius: 15px;"></p>
+            <button onclick="closeModal()" class="btn-submit" style="margin-top: 25px;">Close View</button>
         </div>
     </div>
 
     <nav class="top-navbar">
         <a href="/" class="nav-logo">🌿 e-Gram<span>Seva</span></a>
         <div class="user-nav-info" onclick="openDrawer()">
-            <span style="font-weight: 700; font-size: 14px;"><%= user.name %></span>
+            <span style="font-weight: 700; font-size: 14px; color: var(--text-main);"><%= user.name %></span>
             <img src="<%= user.profilePic || 'https://via.placeholder.com/150' %>">
         </div>
     </nav>
 
     <aside class="sidebar">
         <nav class="nav-menu">
-            <a href="/user/dashboard" class="nav-item active">📊 Dashboard Home</a>
+            <a href="/user/dashboard" class="nav-item active">🏠 Dashboard Home</a>
             
-            <div style="background: #fffcf5; padding: 15px; border-radius: 18px; border-left: 5px solid var(--accent); margin: 10px 0;">
-                <h4 style="font-size: 12px; color: var(--primary);">📢 Village Updates</h4>
-                <div style="max-height: 120px; overflow-y: auto; font-size: 11px; margin-top: 8px;">
+            <div style="background: #fffcf5; padding: 20px; border-radius: 18px; border: 1px solid #fff3cd; margin: 15px 0;">
+                <h4 style="font-size: 12px; color: #856404; text-transform: uppercase; letter-spacing: 0.5px;">📢 Village News</h4>
+                <div style="max-height: 150px; overflow-y: auto; font-size: 11px; margin-top: 10px;">
                     <% if(news && news.length > 0) { %>
                         <% news.forEach(item => { %>
-                            <div style="margin-bottom: 10px;">
-                                <strong><%= item.title %></strong>
-                                <p style="font-size: 10px; color: var(--text-sub); margin-top: 2px;"><%= item.content %></p>
-                                <hr style="opacity: 0.05; margin: 5px 0;">
+                            <div style="margin-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.03); padding-bottom: 8px;">
+                                <strong style="color: var(--text-main);"><%= item.title %></strong>
+                                <p style="color: var(--text-sub); margin-top: 3px;"><%= item.content %></p>
                             </div>
                         <% }) %>
-                    <% } else { %> <p>No news today.</p> <% } %>
+                    <% } else { %> <p style="color: #666;">No new updates.</p> <% } %>
                 </div>
             </div>
-            <a onclick="openDrawer()" class="nav-item" style="cursor: pointer;">⚙️ Profile Settings</a>
-            <a href="/logout" class="nav-item" style="color: var(--danger); margin-top: auto;">🚪 Logout Session</a>
+            <a onclick="openDrawer()" class="nav-item" style="cursor: pointer;">👤 Profile Settings</a>
+            <a href="/logout" class="nav-item" style="color: var(--danger); margin-top: auto; border: 1px solid #fee2e2;">🚪 Logout Session</a>
         </nav>
     </aside>
 
     <main class="main-wrapper">
         <div class="stats-grid">
-            <div class="stat-box">⏳ <div><p style="font-size: 11px;">Pending</p><b><%= complaints.filter(c => c.status === 'Pending').length %></b></div></div>
-            <div class="stat-box">🔄 <div><p style="font-size: 11px;">In-Progress</p><b><%= complaints.filter(c => c.status === 'In-Progress').length %></b></div></div>
-            <div class="stat-box">✅ <div><p style="font-size: 11px;">Resolved</p><b><%= complaints.filter(c => c.status === 'Resolved').length %></b></div></div>
-            <div class="stat-box">📜 <div><p style="font-size: 11px;">Certificates</p><b><%= certificates.filter(cert => cert.status === 'Approved').length %></b></div></div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #fff7ed; color: #c2410c;">⏳</div>
+                <div><p style="font-size: 11px; color: var(--text-sub);">Pending</p><b style="font-size: 20px;"><%= complaints.filter(c => c.status === 'Pending').length %></b></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #eff6ff; color: #1d4ed8;">🔄</div>
+                <div><p style="font-size: 11px; color: var(--text-sub);">In-Progress</p><b style="font-size: 20px;"><%= complaints.filter(c => c.status === 'In-Progress').length %></b></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #f0fdf4; color: #166534;">✅</div>
+                <div><p style="font-size: 11px; color: var(--text-sub);">Resolved</p><b style="font-size: 20px;"><%= complaints.filter(c => c.status === 'Resolved').length %></b></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #fdf2f8; color: #be185d;">📜</div>
+                <div><p style="font-size: 11px; color: var(--text-sub);">Certificates</p><b style="font-size: 20px;"><%= certificates.filter(cert => cert.status === 'Approved').length %></b></div>
+            </div>
         </div>
 
         <div class="content-grid">
@@ -118,153 +143,131 @@
                 <div class="card">
                     <h3>📝 Raise New Issue</h3>
                     <form action="/complaints/add" method="POST" enctype="multipart/form-data">
-                        <select name="category" class="input-field"><option>Road Damage</option><option>Water Leakage</option><option>Street Light</option><option>Sanitation</option></select>
-                        <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Describe the issue..."></textarea>
-                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top:5px;">🎤 Tap to Speak (Voice)</button>
+                        <label style="font-size: 12px; font-weight: 600; color: var(--text-sub);">Problem Category</label>
+                        <select name="category" class="input-field">
+                            <option>Road Damage</option><option>Water Leakage</option><option>Street Light</option><option>Sanitation</option>
+                        </select>
+                        <div style="margin-top: 15px;">
+                            <label style="font-size: 12px; font-weight: 600; color: var(--text-sub);">Description</label>
+                            <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Explain the problem in detail..."></textarea>
+                            <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak (Marathi/Hindi)</button>
+                        </div>
                         <input type="hidden" name="latitude" id="lat"><input type="hidden" name="longitude" id="lon">
-                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="width:100%; margin-top:12px; border:1px dashed var(--primary); padding:10px; border-radius:12px; cursor:pointer; font-weight: 600;">📍 Tag My Location</button>
-                        <input type="file" name="complaintImage" class="input-field">
-                        <button type="submit" class="btn-submit">Submit Report</button>
+                        <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="width:100%; margin-top:15px; border:1px dashed var(--primary); padding:12px; border-radius:12px; cursor:pointer; font-weight: 600; color: var(--primary); background: var(--primary-light);">📍 Tag My GPS Location</button>
+                        <div style="margin-top: 15px;">
+                            <label style="font-size: 12px; font-weight: 600; color: var(--text-sub);">Attach Photo</label>
+                            <input type="file" name="complaintImage" class="input-field">
+                        </div>
+                        <button type="submit" class="btn-submit">Submit Official Report</button>
                     </form>
                 </div>
 
-                <div class="card" style="overflow-x: auto;">
-                    <h3>💰 Village Funds Tracker</h3>
-                    <table style="width:100%; margin-top:10px; font-size: 13px;">
-                        <thead><tr><th style="font-size: 10px;">Scheme Name</th><th style="font-size: 10px; text-align: right;">Fund</th></tr></thead>
+                <div class="card" style="overflow: hidden;">
+                    <h3>💰 Gram Nidhi Tracking</h3>
+                    <table style="width:100%; border-collapse: collapse;">
+                        <thead><tr style="text-align: left; border-bottom: 1px solid #f1f5f9;"><th style="padding: 10px 0; font-size: 11px; color: var(--text-sub);">Scheme Name</th><th style="padding: 10px 0; font-size: 11px; color: var(--text-sub); text-align: right;">Amount</th></tr></thead>
                         <tbody>
                             <% if(schemes && schemes.length > 0) { %>
                                 <% schemes.forEach(s => { %>
-                                    <tr><td><b><%= s.name %></b></td><td style="color:var(--primary); font-weight:700; text-align: right;"><%= s.fundAllocated %></td></tr>
+                                    <tr style="border-bottom: 1px solid #f8fafc;"><td style="padding: 12px 0; font-size: 14px; font-weight: 600;"><%= s.name %></td><td style="padding: 12px 0; color:var(--primary); font-weight:700; text-align: right;"><%= s.fundAllocated %></td></tr>
                                 <% }) %>
-                            <% } else { %> <tr><td colspan="2" style="text-align:center;">No active funds found.</td></tr> <% } %>
+                            <% } else { %> <tr><td colspan="2" style="padding: 20px; text-align: center; color: var(--text-sub);">No active schemes.</td></tr> <% } %>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="col-right">
-                <div class="card" style="text-align: center;">
+                <div class="card">
                     <h3>📊 Grievance Analytics</h3>
-                    <div style="height: 220px; margin-top: 15px;"><canvas id="userStatusChart"></canvas></div>
+                    <div style="height: 250px; margin-top: 10px;"><canvas id="userStatusChart"></canvas></div>
                 </div>
 
-                <div class="card" style="overflow-x: auto;">
+                <div class="card">
                     <h3>📜 Digital Certificates</h3>
-                    <table style="width:100%; font-size: 13px; margin-top: 10px;">
-                        <thead><tr><th style="font-size: 10px;">Type</th><th style="font-size: 10px;">Status</th><th style="font-size: 10px;">Get</th></tr></thead>
+                    <table style="width:100%;">
+                        <thead><tr style="text-align: left; border-bottom: 1px solid #f1f5f9;"><th style="padding: 10px 0; font-size: 11px; color: var(--text-sub);">Type</th><th style="padding: 10px 0; font-size: 11px; color: var(--text-sub);">Status</th><th style="padding: 10px 0; font-size: 11px; color: var(--text-sub); text-align: right;">Action</th></tr></thead>
                         <tbody>
                             <% if(certificates && certificates.length > 0) { %>
                                 <% certificates.forEach(cert => { %>
                                     <tr>
-                                        <td><b><%= cert.type %></b></td>
-                                        <td><span class="status-pill pending" style="padding:2px 8px; font-size:9px;"><%= cert.status %></span></td>
-                                        <td><% if(cert.status === 'Approved') { %><a href="<%= cert.issuedFile %>" target="_blank" style="text-decoration:none;">⬇️ Download</a><% } else { %>-<% } %></td>
+                                        <td style="padding: 12px 0; font-size: 13px; font-weight: 600;"><%= cert.type %></td>
+                                        <td style="padding: 12px 0;"><span class="status-pill pending" style="font-size: 9px; padding: 4px 8px;"><%= cert.status %></span></td>
+                                        <td style="padding: 12px 0; text-align: right;"><% if(cert.status === 'Approved') { %><a href="<%= cert.issuedFile %>" target="_blank" style="color: var(--primary); text-decoration:none; font-weight: 800;">Download</a><% } else { %>-<% } %></td>
                                     </tr>
                                 <% }) %>
-                            <% } else { %> <tr><td colspan="3" style="text-align:center;">No certificate requests.</td></tr> <% } %>
+                            <% } else { %> <tr><td colspan="3" style="padding: 15px; text-align:center; color: var(--text-sub);">No requests.</td></tr> <% } %>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div class="card" style="overflow-x: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h3>📋 Grievance Tracking History</h3>
-                <span style="font-size: 12px; color:var(--text-sub);">Reports: <%= complaints.length %></span>
+        <div class="card" style="margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>📋 Grievance History & Tracking</h3>
+                <span style="font-size: 12px; color: var(--text-sub); background: var(--bg); padding: 5px 15px; border-radius: 20px;">Total Reports: <%= complaints.length %></span>
             </div>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>AI Priority</th>
-                        <th>Details</th>
-                        <th>Status</th>
-                        <th>Reported Date</th>
-                        <th>Photo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if(complaints && complaints.length > 0) { %>
-                        <% complaints.forEach(c => { %>
-                            <tr>
-                                <td><b style="font-size: 15px;"><%= c.category %></b><br><small style="color:var(--text-sub);">#<%= c._id.toString().slice(-6).toUpperCase() %></small></td>
-                                <td>
-                                    <div class="ai-badge <%= c.aiPriority === 'High' ? 'ai-high' : '' %>">
-                                        🤖 <%= c.aiPriority %>
-                                    </div>
-                                </td>
-                                <td>
-                                    <button onclick="openModal('<%= c.category %>', '<%= (c.description || '').replace(/'/g, '\\\'') %>')" 
-                                            style="background:var(--primary-light); color:var(--primary); border:none; padding:8px 12px; border-radius:10px; cursor:pointer; font-size: 11px; font-weight: 700;">
-                                        View Info
-                                    </button>
-                                </td>
-                                <td><span class="status-pill <%= c.status.toLowerCase().replace(' ', '-') %>"><%= c.status %></span></td>
-                                <td style="font-size: 12px; color: var(--text-sub);"><%= new Date(c.createdAt).toLocaleDateString('en-IN') %></td>
-                                <td>
-                                    <% if(c.imageUrl) { %>
-                                        <img src="<%= c.imageUrl %>" style="width:45px; height:45px; border-radius:12px; object-fit:cover; cursor:pointer; border:1px solid #eee;" onclick="window.open(this.src)">
-                                    <% } else { %> <span style="font-size: 10px; color:#ccc;">No Photo</span> <% } %>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    <% } else { %> <tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-sub);">You haven't reported any issues yet.</td></tr> <% } %>
-                </tbody>
-            </table>
+            <div class="history-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Category & ID</th>
+                            <th>AI Priority</th>
+                            <th>Status</th>
+                            <th>Reported Date</th>
+                            <th>Action</th>
+                            <th>Evidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if(complaints && complaints.length > 0) { %>
+                            <% complaints.forEach(c => { %>
+                                <tr>
+                                    <td><b style="font-size: 15px; color: var(--text-main);"><%= c.category %></b><br><small style="color:var(--text-sub); font-family: monospace;">#<%= c._id.toString().slice(-6).toUpperCase() %></small></td>
+                                    <td><div class="ai-badge <%= c.aiPriority === 'High' ? 'ai-high' : '' %>">🤖 AI: <%= c.aiPriority %></div></td>
+                                    <td><span class="status-pill <%= c.status.toLowerCase().replace(' ', '-') %>"><%= c.status %></span></td>
+                                    <td style="font-size: 13px; font-weight: 500;"><%= new Date(c.createdAt).toLocaleDateString('en-IN') %></td>
+                                    <td><button onclick="openModal('<%= c.category %>', '<%= (c.description || '').replace(/'/g, '\\\'') %>')" style="background:var(--bg); color:var(--text-main); border:1px solid #e2e8f0; padding:8px 15px; border-radius:10px; cursor:pointer; font-size: 12px; font-weight: 700;">View Info</button></td>
+                                    <td><% if(c.imageUrl) { %><img src="<%= c.imageUrl %>" style="width:45px; height:45px; border-radius:10px; object-fit:cover; cursor:pointer; border: 2px solid #f1f5f9;" onclick="window.open(this.src)"><% } else { %><small style="color:#ccc;">No Photo</small><% } %></td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %> <tr><td colspan="6" style="text-align:center; padding:50px; color:var(--text-sub);">No official reports found.</td></tr> <% } %>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
     <div class="drawer" id="profileDrawer">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3>👤 Profile Settings</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h3 style="margin-bottom:0;">👤 Account Settings</h3>
             <button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
         <form action="/user/update" method="POST" enctype="multipart/form-data">
-            <label style="font-size:11px; color:var(--text-sub);">Full Name</label>
-            <input type="text" name="name" value="<%= user.name %>" class="input-field">
-            <label style="font-size:11px; color:var(--text-sub); margin-top:15px; display:block;">Change Profile Photo</label>
-            <input type="file" name="profilePic" class="input-field">
-            <button type="submit" class="btn-submit" style="margin-top: 30px;">Update My Profile</button>
+            <div style="margin-bottom: 20px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-sub);">Official Full Name</label>
+                <input type="text" name="name" value="<%= user.name %>" class="input-field">
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-sub);">Change Profile Picture</label>
+                <input type="file" name="profilePic" class="input-field">
+            </div>
+            <button type="submit" class="btn-submit" style="background: var(--primary);">Save Profile Updates</button>
         </form>
     </div>
 
     <script>
         function openDrawer() { document.getElementById('profileDrawer').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
         function closeDrawer() { document.getElementById('profileDrawer').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
+        function openModal(title, body) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalBody').innerText = body; document.getElementById('descModal').style.display = 'block'; document.getElementById('overlay').classList.add('active'); }
+        function closeModal() { document.getElementById('descModal').style.display = 'none'; if(!document.getElementById('profileDrawer').classList.contains('active')) document.getElementById('overlay').classList.remove('active'); }
         
-        function openModal(title, body) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalBody').innerText = body;
-            document.getElementById('descModal').style.display = 'block';
-            document.getElementById('overlay').classList.add('active');
-        }
-        function closeModal() {
-            document.getElementById('descModal').style.display = 'none';
-            if(!document.getElementById('profileDrawer').classList.contains('active')) {
-                document.getElementById('overlay').classList.remove('active');
-            }
-        }
-
-        function getGPSLocation() { 
-            if (navigator.geolocation) { 
-                navigator.geolocation.getCurrentPosition((pos) => { 
-                    document.getElementById('lat').value = pos.coords.latitude; 
-                    document.getElementById('lon').value = pos.coords.longitude; 
-                    document.getElementById('gpsBtn').innerText = "✅ Location Tagged"; 
-                    document.getElementById('gpsBtn').style.background = "#D8F3DC";
-                }); 
-            } 
-        }
-
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'mr-IN';
-        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); document.getElementById('start-voice-btn').innerText = "Listening..."; };
-        recognition.onresult = (e) => { 
-            document.getElementById('complaint_desc').value += e.results[0][0].transcript; 
-            document.getElementById('start-voice-btn').innerText = "🎤 Voice Input";
-        };
+        function getGPSLocation() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { document.getElementById('lat').value = pos.coords.latitude; document.getElementById('lon').value = pos.coords.longitude; document.getElementById('gpsBtn').innerText = "✅ Location Successfully Tagged"; document.getElementById('gpsBtn').style.background = "#D8F3DC"; }); } }
+        
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)(); recognition.lang = 'mr-IN';
+        document.getElementById('start-voice-btn').onclick = () => { recognition.start(); document.getElementById('start-voice-btn').innerText = "Listening... (Speak Now)"; };
+        recognition.onresult = (e) => { document.getElementById('complaint_desc').value += e.results[0][0].transcript; document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak (Voice)"; };
 
         const complaintsData = <%- JSON.stringify(complaints) %>;
         const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
@@ -272,14 +275,8 @@
 
         new Chart(document.getElementById('userStatusChart').getContext('2d'), {
             type: 'doughnut',
-            data: {
-                labels: Object.keys(counts),
-                datasets: [{ data: Object.values(counts), backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'], borderWidth: 0 }]
-            },
-            options: { 
-                responsive: true, maintainAspectRatio: false, cutout: '70%',
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } } } 
-            }
+            data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'], borderWidth: 0, hoverOffset: 15 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 20, font: { size: 11, weight: '600' } } } } }
         });
     </script>
 </body>
