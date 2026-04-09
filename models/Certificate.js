@@ -8,7 +8,7 @@ const CertificateSchema = new mongoose.Schema({
     },
     type: { 
         type: String, 
-        enum: ['Birth Certificate', 'Death Certificate', 'Income Certificate', 'Residence Certificate'], 
+        enum: ['Birth Certificate', 'Death Certificate', 'Income Certificate', 'Domicile Certificate'], 
         required: true 
     },
     reason: { type: String, required: true },
