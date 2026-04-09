@@ -279,6 +279,20 @@ app.post('/admin/certificate/reject/:id', async (req, res) => {
     res.redirect('/panchayat/dashboard');
 });
 
+app.post('/admin/reject-user/:id', async (req, res) => {
+    // Check if the person is an Admin
+    if (!req.session.userId || req.session.role !== 'panchayat') {
+        return res.status(403).send("Unauthorized Access");
+    }
+
+    try {
+        // Find and delete the pending user request
+        await User.findByIdAndDelete(req.params.id);
+        res.redirect('/panchayat/dashboard');
+    } catch (err) {
+        res.status(500).send("Rejection Failed: " + err.message);
+    }
+});
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
 app.listen(PORT, () => console.log(`🚀 e-GramSeva Server active on port ${PORT}`));

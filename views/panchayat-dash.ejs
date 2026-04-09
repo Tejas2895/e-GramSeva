@@ -131,15 +131,22 @@
                 <tbody>
                     <% if(pendingUsers && pendingUsers.length > 0) { %>
                         <% pendingUsers.forEach(u => { %>
-                            <tr>
-                                <td data-label="Name"><strong><%= u.name %></strong></td>
-                                <td data-label="Email"><%= u.email %></td>
-                                <td data-label="Action">
-                                    <form action="/admin/approve-user/<%= u._id %>" method="POST">
-                                        <button type="submit" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Approve</button>
-                                    </form>
-                                </td>
-                            </tr>
+                           <tr>
+    <td data-label="Name"><strong><%= u.name %></strong></td>
+    <td data-label="Email"><%= u.email %></td>
+    
+    <td data-label="Action">
+        <div style="display: flex; gap: 10px;">
+            <form action="/admin/approve-user/<%= u._id %>" method="POST" style="margin:0;">
+                <button type="submit" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Approve</button>
+            </form>
+            
+            <form action="/admin/reject-user/<%= u._id %>" method="POST" style="margin:0;" onsubmit="return confirm('Are you sure you want to reject and delete this request?');">
+                <button type="submit" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Reject</button>
+            </form>
+        </div>
+    </td>
+</tr>
                         <% }) %>
                     <% } else { %> <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-sub);">No pending approvals.</td></tr> <% } %>
                 </tbody>
