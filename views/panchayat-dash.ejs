@@ -54,7 +54,13 @@
         .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .pending { background: #fff7ed; color: #c2410c; } .in-progress { background: #eff6ff; color: #1d4ed8; } .resolved { background: #f0fdf4; color: #166534; } .rejected { background: #fef2f2; color: #b91c1c; }
 
-        .ai-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; }
+        /* ✅ AI PRIORITY COLORS FIXED */
+        .ai-badge { padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; color: white; }
+        .priority-high { background: linear-gradient(135deg, #ef4444, #b91c1c); } /* Red */
+        .priority-normal { background: linear-gradient(135deg, #6366f1, #a855f7); } /* Blue/Purple */
+
+        .location-link { color: #2563eb; font-weight: 700; text-decoration: none; font-size: 12px; }
+        .location-link:hover { text-decoration: underline; }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         td { padding: 15px; background: #fff; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
@@ -67,12 +73,10 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1500; }
         .overlay.active { display: block; }
 
-        /* ✅ MOBILE VIEW FIXES */
         @media (max-width: 992px) { 
             .sidebar { display: none; } 
             .main-content { margin-left: 0; padding: 20px; padding-top: 90px; }
             .grid-tools { grid-template-columns: 1fr; }
-            
             table thead { display: none; }
             table, tbody, tr, td { display: block; width: 100%; }
             tr { margin-bottom: 15px; border: 1px solid #eee; border-radius: 15px; padding: 10px; }
@@ -131,22 +135,20 @@
                 <tbody>
                     <% if(pendingUsers && pendingUsers.length > 0) { %>
                         <% pendingUsers.forEach(u => { %>
-                           <tr>
-    <td data-label="Name"><strong><%= u.name %></strong></td>
-    <td data-label="Email"><%= u.email %></td>
-    
-    <td data-label="Action">
-        <div style="display: flex; gap: 10px;">
-            <form action="/admin/approve-user/<%= u._id %>" method="POST" style="margin:0;">
-                <button type="submit" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Approve</button>
-            </form>
-            
-            <form action="/admin/reject-user/<%= u._id %>" method="POST" style="margin:0;" onsubmit="return confirm('Are you sure you want to reject and delete this request?');">
-                <button type="submit" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Reject</button>
-            </form>
-        </div>
-    </td>
-</tr>
+                            <tr>
+                                <td data-label="Name"><strong><%= u.name %></strong></td>
+                                <td data-label="Email"><%= u.email %></td>
+                                <td data-label="Action">
+                                    <div style="display: flex; gap: 10px;">
+                                        <form action="/admin/approve-user/<%= u._id %>" method="POST" style="margin:0;">
+                                            <button type="submit" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Approve</button>
+                                        </form>
+                                        <form action="/admin/reject-user/<%= u._id %>" method="POST" style="margin:0;" onsubmit="return confirm('Are you sure you want to reject and delete this request?');">
+                                            <button type="submit" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Reject</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
                         <% }) %>
                     <% } else { %> <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-sub);">No pending approvals.</td></tr> <% } %>
                 </tbody>
@@ -217,49 +219,71 @@
             <input type="text" id="smartSearch" placeholder="🔍 Search Issue..." class="input-field" style="margin-bottom:0; width: 220px; padding: 8px;">
         </div>
         <table id="complaintTable">
-            <thead><tr style="text-align:left; color:var(--text-sub);"><th>Citizen</th><th>Issue</th><th>Details</th><th>Evidence</th><th>Status</th><th>Action</th></tr></thead>
+            <thead>
+                <tr style="text-align:left; color:var(--text-sub);">
+                    <th>Citizen</th>
+                    <th>Issue & Priority</th>
+                    <th>Location</th> <th>Details</th>
+                    <th>Evidence</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
             <tbody id="complaintTableBody">
                 <% complaints.forEach(complaint => { %>
                     <tr>
-    <td data-label="Citizen"><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
-    <td data-label="Issue"><%= complaint.category %><br><div class="ai-badge">🤖 Priority: <%= complaint.aiPriority %></div></td>
-    
-    <td data-label="Details">
-        <div style="display: flex; gap: 8px;">
-            <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" 
-                style="background:var(--primary-soft); color:var(--primary); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size: 11px;">
-                View
-            </button>
+                        <td data-label="Citizen"><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
+                        
+                        <td data-label="Issue">
+                            <%= complaint.category %><br>
+                            <div class="ai-badge <%= complaint.aiPriority === 'High' ? 'priority-high' : 'priority-normal' %>">
+                                🤖 AI: <%= complaint.aiPriority %>
+                            </div>
+                        </td>
 
-            <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Are you sure?');" style="margin:0;">
-                <button type="submit" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size: 11px; font-weight: 700;">
-                    Delete
-                </button>
-            </form>
-        </div>
-    </td>
+                        <td data-label="Location">
+                            <% if(complaint.latitude && complaint.longitude) { %>
+                                <a href="https://www.google.com/maps/search/?api=1&query=<%= complaint.latitude %>,<%= complaint.longitude %>" target="_blank" class="location-link">📍 View Map</a>
+                            <% } else { %>
+                                <span style="color:#ccc;">No GPS</span>
+                            <% } %>
+                        </td>
+                        
+                        <td data-label="Details">
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" 
+                                    style="background:var(--primary-soft); color:var(--primary); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size: 11px;">
+                                    View
+                                </button>
+                                <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Are you sure?');" style="margin:0;">
+                                    <button type="submit" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size: 11px; font-weight: 700;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
 
-    <td data-label="Evidence">
-        <% if(complaint.imageUrl) { %>
-            <img src="<%= complaint.imageUrl %>" style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)">
-        <% } else { %> - <% } %>
-    </td>
-    
-    <td data-label="Status">
-        <span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span>
-    </td>
+                        <td data-label="Evidence">
+                            <% if(complaint.imageUrl) { %>
+                                <img src="<%= complaint.imageUrl %>" style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)">
+                            <% } else { %> - <% } %>
+                        </td>
+                        
+                        <td data-label="Status">
+                            <span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span>
+                        </td>
 
-    <td data-label="Action">
-        <form action="/complaints/update/<%= complaint._id %>" method="POST">
-            <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px;">
-                <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
-                <option value="In-Progress" <%= complaint.status==='In-Progress'?'selected':'' %>>In-Progress</option>
-                <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
-                <option value="Rejected" <%= complaint.status==='Rejected'?'selected':'' %>>Rejected</option>
-            </select>
-        </form>
-    </td>
-</tr>
+                        <td data-label="Action">
+                            <form action="/complaints/update/<%= complaint._id %>" method="POST">
+                                <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px;">
+                                    <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
+                                    <option value="In-Progress" <%= complaint.status==='In-Progress'?'selected':'' %>>In-Progress</option>
+                                    <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
+                                    <option value="Rejected" <%= complaint.status==='Rejected'?'selected':'' %>>Rejected</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
                 <% }) %>
             </tbody>
         </table>
@@ -273,19 +297,14 @@
     <form action="/user/update" method="POST" enctype="multipart/form-data">
         <label style="font-size:12px; font-weight:700;">Full Name</label>
         <input type="text" name="name" value="<%= user.name %>" class="input-field">
-        
         <label style="font-size:12px; font-weight:700;">Designation</label>
         <input type="text" name="designation" value="<%= user.designation %>" class="input-field">
-
         <label style="font-size:12px; font-weight:700;">Mobile Number</label>
         <input type="text" name="mobile" value="<%= user.mobile || '' %>" class="input-field">
-
         <label style="font-size:12px; font-weight:700;">Residential Address</label>
         <textarea name="address" class="input-field" rows="2"><%= user.address || '' %></textarea>
-
         <label style="font-size:12px; font-weight:700;">Office/Profile Photo</label>
         <input type="file" name="profilePic" class="input-field">
-        
         <button type="submit" class="btn-submit" style="margin-top:20px;">Save Admin Profile</button>
     </form>
 </div>
@@ -317,9 +336,8 @@
     });
 
     function generatePDF() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        const { jsPDF } = window.jspdf; const doc = new jsPDF('l'); // Landscape for more columns
         doc.setFontSize(18); doc.text("Gram Panchayat Official Report", 14, 20);
-        doc.setFontSize(10); doc.text("Generated by e-GramSeva AI", 14, 28);
         doc.autoTable({ html: '#complaintTable', startY: 35, theme: 'striped' });
         doc.save("Panchayat_Report.pdf");
     }
