@@ -37,8 +37,29 @@
 
         /* --- SIDEBAR --- */
         .sidebar { width: var(--sidebar-width); background: var(--white); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; position: fixed; height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; }
-        .sidebar-header { padding: 25px; background: var(--primary-soft); text-align: center; border-bottom: 1px solid #e2e8f0; }
-        .panchayat-logo-container { width: 65px; height: 65px; background: white; border-radius: 50%; margin: 0 auto 10px; border: 2px solid var(--primary); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        
+        /* ✅ FIXED SIDEBAR HEADER: Name below logo */
+        .sidebar-header { 
+            padding: 30px 15px; 
+            background: var(--primary-soft); 
+            text-align: center; 
+            border-bottom: 1px solid #e2e8f0; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .panchayat-logo-container { 
+            width: 75px; 
+            height: 75px; 
+            background: white; 
+            border-radius: 50%; 
+            margin-bottom: 12px; 
+            border: 2px solid var(--primary); 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
         .panchayat-logo-container img { width: 100%; height: 100%; object-fit: cover; }
         
         /* --- MAIN CONTENT --- */
@@ -55,9 +76,9 @@
         .pending { background: #fff7ed; color: #c2410c; } .in-progress { background: #eff6ff; color: #1d4ed8; } .resolved { background: #f0fdf4; color: #166534; } .rejected { background: #fef2f2; color: #b91c1c; }
 
         /* ✅ AI PRIORITY COLORS FIXED */
-        .ai-badge { padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; color: white; }
-        .priority-high { background: linear-gradient(135deg, #ef4444, #b91c1c); } /* Red */
-        .priority-normal { background: linear-gradient(135deg, #6366f1, #a855f7); } /* Blue/Purple */
+        .ai-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; color: white; }
+        .priority-high { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; } 
+        .priority-normal { background: linear-gradient(135deg, #6366f1, #a855f7) !important; }
 
         .location-link { color: #2563eb; font-weight: 700; text-decoration: none; font-size: 12px; }
         .location-link:hover { text-decoration: underline; }
@@ -109,7 +130,7 @@
 <aside class="sidebar">
     <div class="sidebar-header">
         <div class="panchayat-logo-container"><img src="<%= user.profilePic || 'https://via.placeholder.com/150' %>"></div>
-        <div style="font-weight: 800; color: var(--primary); font-size: 14px;"><%= user.panchayatName %></div>
+        <div style="font-weight: 800; color: var(--primary); font-size: 14px; text-transform: uppercase;"><%= user.panchayatName %></div>
     </div>
     <nav style="padding:20px; display:flex; flex-direction:column; gap:10px;">
         <a href="/panchayat/dashboard" style="text-decoration:none; color:white; font-weight:700; padding:12px; background:var(--primary); border-radius:12px;">📊 Dashboard</a>
@@ -123,13 +144,12 @@
 <main class="main-content">
     <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
         <div><h2>Gram Panchayat Office</h2><p>Officer In-charge: <strong><%= user.name %></strong></p></div>
-        <button onclick="generatePDF()" style="background:var(--text-main); color:white; padding:12px 24px; border:none; border-radius:12px; font-weight:700; cursor:pointer;">📥 Export Report (PDF)</button>
+        <button onclick="generatePDF()" style="background:var(--text-main); color:white; padding:12px 24px; border:none; border-radius:12px; font-weight:700; cursor:pointer;">📥 Export Official Report (PDF)</button>
     </div>
 
     <div class="card" id="pending-approvals" style="border: 1px solid #FFB703; background: #fffcf5;">
         <h3 style="color: #856404;">👤 User Registration Requests</h3>
-        <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 15px;">Review and approve village residents for dashboard access.</p>
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto; margin-top:15px;">
             <table style="width:100%;">
                 <thead><tr style="text-align:left; font-size:11px;"><th>Resident Name</th><th>Email ID</th><th>Action</th></tr></thead>
                 <tbody>
@@ -140,76 +160,34 @@
                                 <td data-label="Email"><%= u.email %></td>
                                 <td data-label="Action">
                                     <div style="display: flex; gap: 10px;">
-                                        <form action="/admin/approve-user/<%= u._id %>" method="POST" style="margin:0;">
-                                            <button type="submit" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Approve</button>
-                                        </form>
-                                        <form action="/admin/reject-user/<%= u._id %>" method="POST" style="margin:0;" onsubmit="return confirm('Are you sure you want to reject and delete this request?');">
-                                            <button type="submit" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Reject</button>
-                                        </form>
+                                        <form action="/admin/approve-user/<%= u._id %>" method="POST"><button type="submit" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Approve</button></form>
+                                        <form action="/admin/reject-user/<%= u._id %>" method="POST" onsubmit="return confirm('Reject user?');"><button type="submit" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:700;">Reject</button></form>
                                     </div>
                                 </td>
                             </tr>
                         <% }) %>
-                    <% } else { %> <tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-sub);">No pending approvals.</td></tr> <% } %>
+                    <% } else { %> <tr><td colspan="3" style="text-align:center; padding:20px;">No pending approvals.</td></tr> <% } %>
                 </tbody>
             </table>
         </div>
     </div>
 
     <div class="grid-tools">
-        <div class="card" style="margin-bottom:0; padding:20px;">
-            <h3>📊 Issue Analytics</h3>
-            <div style="height: 180px; margin-top: 15px;"><canvas id="complaintsChart"></canvas></div>
-        </div>
-
-        <div class="card" style="margin-bottom:0; padding:20px;">
-            <h3>💰 Update Fund Tracker</h3>
+        <div class="card"><canvas id="complaintsChart"></canvas></div>
+        <div class="card">
+            <h3>💰 Fund Tracker</h3>
             <form action="/admin/add-scheme" method="POST" style="margin-top: 10px;">
                 <input type="text" name="name" placeholder="Scheme Name" class="input-field" required>
-                <input type="text" name="fundAllocated" placeholder="Amount (e.g. ₹5 Lakh)" class="input-field" required>
-                <select name="status" class="input-field"><option>Announced</option><option>Ongoing</option><option>Completed</option></select>
+                <input type="text" name="fundAllocated" placeholder="Amount" class="input-field" required>
                 <button type="submit" class="btn-submit">Post Fund Data</button>
             </form>
         </div>
-
-        <div class="card" style="margin-bottom:0; padding:20px;">
-            <h3 style="color: var(--primary);">📢 Village News Broadcast</h3>
+        <div class="card">
+            <h3>📢 Village News Broadcast</h3>
             <form action="/admin/post-news" method="POST" style="margin-top: 10px;">
                 <input type="text" name="title" placeholder="Headline" class="input-field" required>
-                <textarea name="content" placeholder="News details..." class="input-field" style="height: 60px; resize:none;" required></textarea>
                 <button type="submit" class="btn-submit" style="background: var(--accent);">Broadcast Now</button>
             </form>
-        </div>
-    </div>
-
-    <div class="card">
-        <h3>📜 Certificate Request Queue</h3>
-        <div style="overflow-x:auto; margin-top:15px;">
-            <table>
-                <thead><tr style="text-align:left; color:var(--text-sub);"><th>Citizen</th><th>Type</th><th>Reason</th><th>Action</th></tr></thead>
-                <tbody>
-                    <% if(certRequests && certRequests.length > 0) { %>
-                        <% certRequests.forEach(req => { %>
-                            <tr>
-                                <td data-label="Citizen"><b><%= req.citizen ? req.citizen.name : 'Unknown' %></b></td>
-                                <td data-label="Type"><%= req.type %></td>
-                                <td data-label="Reason"><%= req.reason %></td>
-                                <td data-label="Action">
-                                    <div style="display: flex; gap: 10px;">
-                                        <form action="/admin/certificate/approve/<%= req._id %>" method="POST" enctype="multipart/form-data" style="display:flex; gap:5px;">
-                                            <input type="file" name="certFile" required style="font-size:10px; width:110px;">
-                                            <button type="submit" style="background:var(--primary); color:white; border:none; padding:6px 10px; border-radius:8px; cursor:pointer;">Issue</button>
-                                        </form>
-                                        <form action="/admin/certificate/reject/<%= req._id %>" method="POST">
-                                            <button type="submit" style="background:var(--danger); color:white; border:none; padding:6px 10px; border-radius:8px; cursor:pointer;">Reject</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    <% } else { %> <tr><td colspan="4" style="text-align:center; padding:20px;">No requests.</td></tr> <% } %>
-                </tbody>
-            </table>
         </div>
     </div>
 
@@ -223,7 +201,8 @@
                 <tr style="text-align:left; color:var(--text-sub);">
                     <th>Citizen</th>
                     <th>Issue & Priority</th>
-                    <th>Location</th> <th>Details</th>
+                    <th>Location</th>
+                    <th>Details</th>
                     <th>Evidence</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -233,55 +212,39 @@
                 <% complaints.forEach(complaint => { %>
                     <tr>
                         <td data-label="Citizen"><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
-                        
                         <td data-label="Issue">
                             <%= complaint.category %><br>
                             <div class="ai-badge <%= complaint.aiPriority === 'High' ? 'priority-high' : 'priority-normal' %>">
                                 🤖 AI: <%= complaint.aiPriority %>
                             </div>
                         </td>
-
                         <td data-label="Location">
                             <% if(complaint.latitude && complaint.longitude) { %>
-                                <a href="https://www.google.com/maps/search/?api=1&query=<%= complaint.latitude %>,<%= complaint.longitude %>" target="_blank" class="location-link">📍 View Map</a>
-                            <% } else { %>
-                                <span style="color:#ccc;">No GPS</span>
-                            <% } %>
+                                <a href="https://www.google.com/maps?q=<%= complaint.latitude %>,<%= complaint.longitude %>" target="_blank" class="location-link">📍 View Map</a>
+                            <% } else { %> - <% } %>
                         </td>
-                        
                         <td data-label="Details">
-                            <div style="display: flex; gap: 8px;">
-                                <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" 
-                                    style="background:var(--primary-soft); color:var(--primary); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size: 11px;">
-                                    View
-                                </button>
-                                <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Are you sure?');" style="margin:0;">
-                                    <button type="submit" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size: 11px; font-weight: 700;">
-                                        Delete
-                                    </button>
-                                </form>
-                            </div>
+                            <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" style="background:var(--primary-soft); color:var(--primary); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:11px;">View</button>
                         </td>
-
                         <td data-label="Evidence">
                             <% if(complaint.imageUrl) { %>
                                 <img src="<%= complaint.imageUrl %>" style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)">
                             <% } else { %> - <% } %>
                         </td>
-                        
-                        <td data-label="Status">
-                            <span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span>
-                        </td>
-
+                        <td data-label="Status"><span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span></td>
                         <td data-label="Action">
-                            <form action="/complaints/update/<%= complaint._id %>" method="POST">
-                                <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px;">
-                                    <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
-                                    <option value="In-Progress" <%= complaint.status==='In-Progress'?'selected':'' %>>In-Progress</option>
-                                    <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
-                                    <option value="Rejected" <%= complaint.status==='Rejected'?'selected':'' %>>Rejected</option>
-                                </select>
-                            </form>
+                            <div style="display:flex; gap:5px;">
+                                <form action="/complaints/update/<%= complaint._id %>" method="POST">
+                                    <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px;">
+                                        <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
+                                        <option value="In-Progress" <%= complaint.status==='In-Progress'?'selected':'' %>>In-Progress</option>
+                                        <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
+                                    </select>
+                                </form>
+                                <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Delete permanently?');">
+                                    <button type="submit" style="background:#fee2e2; color:var(--danger); border:none; padding:6px 8px; border-radius:8px; cursor:pointer;">🗑️</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 <% }) %>
@@ -292,7 +255,7 @@
 
 <div class="drawer" id="adminDrawer">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-        <h3>⚙️ Admin Settings</h3><button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        <h3>⚙️ Admin Settings</h3><button onclick="closeDrawer()" style="background:none; border:none; font-size:24px; cursor:pointer;">×</button>
     </div>
     <form action="/user/update" method="POST" enctype="multipart/form-data">
         <label style="font-size:12px; font-weight:700;">Full Name</label>
@@ -301,9 +264,7 @@
         <input type="text" name="designation" value="<%= user.designation %>" class="input-field">
         <label style="font-size:12px; font-weight:700;">Mobile Number</label>
         <input type="text" name="mobile" value="<%= user.mobile || '' %>" class="input-field">
-        <label style="font-size:12px; font-weight:700;">Residential Address</label>
-        <textarea name="address" class="input-field" rows="2"><%= user.address || '' %></textarea>
-        <label style="font-size:12px; font-weight:700;">Office/Profile Photo</label>
+        <label style="font-size:12px; font-weight:700;">Profile Photo</label>
         <input type="file" name="profilePic" class="input-field">
         <button type="submit" class="btn-submit" style="margin-top:20px;">Save Admin Profile</button>
     </form>
@@ -313,13 +274,7 @@
     function openDrawer() { document.getElementById('adminDrawer').classList.add('active'); document.getElementById('overlay').classList.add('active'); }
     function closeDrawer() { document.getElementById('adminDrawer').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }
     function closeModal() { document.getElementById('descModal').style.display = 'none'; if(!document.getElementById('adminDrawer').classList.contains('active')) document.getElementById('overlay').classList.remove('active'); }
-    
-    function openModal(title, body) {
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalBody').innerText = body;
-        document.getElementById('descModal').style.display = 'block';
-        document.getElementById('overlay').classList.add('active');
-    }
+    function openModal(t, b) { document.getElementById('modalTitle').innerText = t; document.getElementById('modalBody').innerText = b; document.getElementById('descModal').style.display = 'block'; document.getElementById('overlay').classList.add('active'); }
 
     document.getElementById('smartSearch').addEventListener('keyup', function() {
         let val = this.value.toLowerCase();
@@ -335,11 +290,31 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
+    // ✅ ENHANCED PROFESSIONAL PDF REPORT
     function generatePDF() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF('l'); // Landscape for more columns
-        doc.setFontSize(18); doc.text("Gram Panchayat Official Report", 14, 20);
-        doc.autoTable({ html: '#complaintTable', startY: 35, theme: 'striped' });
-        doc.save("Panchayat_Report.pdf");
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4'); 
+        
+        doc.setFontSize(22);
+        doc.setTextColor(26, 116, 49); // Primary Green
+        doc.text("Official Village Grievance Report", 14, 20);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text("System Generated via e-GramSeva AI Portal", 14, 28);
+        doc.text("Report Date: " + new Date().toLocaleDateString(), 14, 33);
+        doc.text("Village Office: <%= user.panchayatName %>", 14, 38);
+        
+        doc.autoTable({ 
+            html: '#complaintTable', 
+            startY: 45,
+            theme: 'grid',
+            headStyles: { fillColor: [26, 116, 49], textColor: [255, 255, 255], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [245, 245, 245] },
+            styles: { fontSize: 9, cellPadding: 3 }
+        });
+        
+        doc.save("<%= user.panchayatName %>_Report.pdf");
     }
 </script>
 </body>
