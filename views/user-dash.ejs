@@ -140,7 +140,7 @@
                         </select>
                         <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Explain the problem..." required></textarea>
                         
-                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak (Marathi)</button>
+                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak</button>
                         
                         <input type="hidden" name="latitude" id="lat">
                         <input type="hidden" name="longitude" id="lon">
@@ -206,7 +206,7 @@
         <div class="card" style="overflow-x: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;"><h3>📋 Grievance History</h3><span style="font-size: 12px; color:var(--text-sub);">Total: <%= complaints.length %></span></div>
             <table class="history-table">
-                <thead><tr><th>Category</th><th>AI Priority</th><th>Status</th><th>Date</th><th>Details</th><th>Evidence</th></tr></thead>
+                <thead><tr><th>Category</th><th>AI Priority</th><th>Status</th><th>Date</th><th>Action</th><th>Evidence</th></tr></thead>
                 <tbody>
                     <% if(complaints && complaints.length > 0) { %>
                         <% complaints.forEach(c => { %>
@@ -254,11 +254,9 @@
         function openModal(title, body) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalBody').innerText = body; document.getElementById('descModal').style.display = 'block'; document.getElementById('overlay').classList.add('active'); }
         function closeModal() { document.getElementById('descModal').style.display = 'none'; if(!document.getElementById('profileDrawer').classList.contains('active')) document.getElementById('overlay').classList.remove('active'); }
         
-        // ✅ UPDATED GPS LOGIC (Guaranteed capture)
         function getGPSLocation() { 
             const btn = document.getElementById('gpsBtn');
             btn.innerText = "📍 Capturing GPS...";
-            
             if (navigator.geolocation) { 
                 navigator.geolocation.getCurrentPosition(
                     (pos) => { 
@@ -284,17 +282,36 @@
         recognition.lang = 'mr-IN';
         document.getElementById('start-voice-btn').onclick = () => { recognition.start(); document.getElementById('start-voice-btn').innerText = "Listening..."; };
         recognition.onresult = (e) => { document.getElementById('complaint_desc').value += e.results[0][0].transcript; };
-        recognition.onend = () => { document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak."; };
+        recognition.onend = () => { document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak"; };
 
-        // Chart
+        // ✅ CHART FIX: REMOVED REJECTED FROM GRAPH
         const complaintsData = <%- JSON.stringify(complaints) %>;
-        const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
-        complaintsData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });
+        const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0 }; // Rejected removed here
+        complaintsData.forEach(c => { 
+            if(counts[c.status] !== undefined) counts[c.status]++; 
+        });
 
         new Chart(document.getElementById('userStatusChart').getContext('2d'), {
             type: 'doughnut',
-            data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#ea580c', '#2563eb', '#16a34a', '#dc2626'], borderWidth: 0 }] },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11, weight: '600' } } } } }
+            data: { 
+                labels: Object.keys(counts), 
+                datasets: [{ 
+                    data: Object.values(counts), 
+                    backgroundColor: ['#ea580c', '#2563eb', '#16a34a'], // Rejected color removed
+                    borderWidth: 0 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                cutout: '75%', 
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { boxWidth: 12, padding: 15, font: { size: 11, weight: '600' } } 
+                    } 
+                } 
+            }
         });
     </script>
 </body>
