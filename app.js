@@ -78,18 +78,29 @@ app.get('/', async (req, res) => {
 app.get('/login', (req, res) => res.render("login"));
 app.get('/signup', (req, res) => res.render('signup'));
 
+// ✅ UPDATED SIGNUP: Added isApproved: false
 app.post('/auth/signup', async (req, res) => {
     try {
-        const newUser = new User(req.body);
+        const newUser = new User({
+            ...req.body,
+            isApproved: false // User must be approved by Panchayat Admin
+        });
         await newUser.save();
-        res.redirect('/login');
-    } catch (err) { res.status(500).send("Signup Failed"); }
+        res.send("<h2>Signup Successful! ✅</h2><p>Your account is pending for Admin Approval. Please try logging in after some time.</p><a href='/login'>Go to Login</a>");
+    } catch (err) { res.status(500).send("Signup Failed: " + err.message); }
 });
 
+// ✅ UPDATED LOGIN: Added Approval Check
 app.post('/auth/login', async (req, res) => {
     const { email, password, role } = req.body;
     const user = await User.findOne({ email, password, role });
+    
     if (user) {
+        // Block Citizens who are not yet approved
+        if (user.role === 'citizen' && user.isApproved === false) {
+            return res.send("⛔ **Access Denied**: Your account is not approved yet by Gram Panchayat Admin.");
+        }
+
         req.session.userId = user._id;
         req.session.user = user;
         req.session.role = user.role;
@@ -98,7 +109,6 @@ app.post('/auth/login', async (req, res) => {
 });
 
 // B. DASHBOARDS
-// --- B. DASHBOARDS (UPDATED) ---
 
 // User Dashboard
 app.get('/user/dashboard', async (req, res) => {
@@ -106,8 +116,6 @@ app.get('/user/dashboard', async (req, res) => {
     try {
         const complaints = await Complaint.find({ citizen: req.session.userId }).sort({ createdAt: -1 });
         const news = await News.find().sort({ createdAt: -1 }); 
-        
-        // ✅ YE DO LINES ADD KI HAIN
         const schemes = await Scheme.find().sort({ updatedAt: -1 });
         const certificates = await Certificate.find({ citizen: req.session.userId }).sort({ createdAt: -1 });
 
@@ -115,47 +123,57 @@ app.get('/user/dashboard', async (req, res) => {
             user: req.session.user, 
             complaints, 
             news, 
-            schemes,      // Dashboard ko ye data chahiye
-            certificates  // Dashboard ko ye data chahiye
+            schemes,      
+            certificates  
         });
     } catch (err) { 
-        console.error(err);
         res.status(500).send("Dashboard Error: " + err.message); 
     }
 });
 
-// Panchayat Dashboard
+// ✅ UPDATED Panchayat Dashboard: Added pendingUsers
 app.get('/panchayat/dashboard', async (req, res) => {
     if (!req.session.userId || req.session.role !== 'panchayat') return res.redirect('/login');
     try {
         const complaints = await Complaint.find().populate('citizen').sort({ createdAt: -1 });
         const news = await News.find().sort({ createdAt: -1 }); 
-        
-        // ✅ YE DO LINES ADMIN KE LIYE ADD KI HAIN
         const certRequests = await Certificate.find({ status: 'Pending' }).populate('citizen');
         const schemes = await Scheme.find().sort({ updatedAt: -1 });
+        
+        // Fetch users waiting for approval
+        const pendingUsers = await User.find({ role: 'citizen', isApproved: false });
 
         res.render('panchayat-dash', { 
             user: req.session.user, 
             complaints, 
             news, 
-            certRequests, // Admin ko requests dikhane ke liye
-            schemes       // Admin ko schemes dikhane ke liye
+            certRequests, 
+            schemes,
+            pendingUsers // Passing pending users to admin view
         });
     } catch (err) { 
-        console.error(err);
         res.status(500).send("Panchayat Dashboard Error: " + err.message); 
     }
 });
-// C. COMPLAINT MANAGEMENT (FIXED FOR CLOUDINARY)
+
+// ✅ NEW ROUTE: Approve User Action
+app.post('/admin/approve-user/:id', async (req, res) => {
+    if (req.session.role !== 'panchayat') return res.status(403).send("Unauthorized");
+    try {
+        await User.findByIdAndUpdate(req.params.id, { isApproved: true });
+        res.redirect('/panchayat/dashboard');
+    } catch (err) {
+        res.status(500).send("Approval Failed: " + err.message);
+    }
+});
+
+// C. COMPLAINT MANAGEMENT
 app.post('/complaints/add', upload.single('complaintImage'), async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
-    
     try {
         const { category, description } = req.body;
-        let imageUrl = req.file ? req.file.path : null; // Cloudinary URL directly
+        let imageUrl = req.file ? req.file.path : null;
 
-        // ML: DUPLICATE DETECTION
         const existingComplaints = await Complaint.find({ status: 'Pending', category: category });
         let isDuplicate = false;
         if (existingComplaints.length > 0) {
@@ -164,7 +182,6 @@ app.post('/complaints/add', upload.single('complaintImage'), async (req, res) =>
             if (matches.bestMatch.rating > 0.7) isDuplicate = true;
         }
 
-        // ML: PRIORITY SCORING
         let aiPriority = "Normal";
         const urgentWords = ["broken", "leakage", "emergency", "flood", "dark", "accident", "danger", "urgent", "leak"];
         const descLower = description.toLowerCase();
@@ -183,9 +200,7 @@ app.post('/complaints/add', upload.single('complaintImage'), async (req, res) =>
 
         await newComp.save();
         res.redirect('/user/dashboard');
-    } catch (err) { 
-        res.status(500).send("Error: " + err.message); 
-    }
+    } catch (err) { res.status(500).send("Error: " + err.message); }
 });
 
 // D. ADMIN ACTIONS
@@ -216,23 +231,18 @@ app.post('/complaints/delete/:id', async (req, res) => {
     } catch (err) { res.status(500).send("Delete failed"); }
 });
 
-// E. PROFILE UPDATE (FIXED FOR CLOUDINARY)
+// E. PROFILE UPDATE
 app.post('/user/update', upload.single('profilePic'), async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
         const { name, mobile, address, panchayatName, designation } = req.body;
         let updateData = { name, mobile, address, panchayatName, designation };
-
-        if (req.file) {
-            updateData.profilePic = req.file.path; // Cloudinary URL
-        }
+        if (req.file) updateData.profilePic = req.file.path;
 
         const updatedUser = await User.findByIdAndUpdate(req.session.userId, updateData, { new: true });
         req.session.user = updatedUser;
         res.redirect(updatedUser.role === 'panchayat' ? '/panchayat/dashboard' : '/user/dashboard');
-    } catch (err) { 
-        res.status(500).send("Update Error: " + err.message); 
-    }
+    } catch (err) { res.status(500).send("Update Error: " + err.message); }
 });
 
 app.post('/admin/post-news', async (req, res) => {
@@ -243,59 +253,37 @@ app.post('/admin/post-news', async (req, res) => {
     } catch (err) { res.status(500).send("News Failed"); }
 });
 
-app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
-
-app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));
-
-
-
-
-
-
-
-
-
-// --- User Side: Request Certificate ---
+// F. CERTIFICATES & SCHEMES
 app.post('/certificates/request', async (req, res) => {
     const { type, reason } = req.body;
     await Certificate.create({ citizen: req.session.userId, type, reason });
     res.redirect('/user/dashboard');
 });
 
-// --- Admin Side: Add New Scheme/Fund ---
 app.post('/admin/add-scheme', async (req, res) => {
     const { name, fundAllocated, status } = req.body;
     await Scheme.create({ name, fundAllocated, status });
     res.redirect('/panchayat/dashboard');
 });
 
-// --- Admin Side: Approve & Upload Certificate (FIXED) ---
 app.post('/admin/certificate/approve/:id', upload.single('certFile'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).send("Please upload a file");
-
-        // Cloudinary URL direct req.file.path mein mil jayega
-        const fileUrl = req.file.path; 
-
         await Certificate.findByIdAndUpdate(req.params.id, {
             status: 'Approved',
-            issuedFile: fileUrl
+            issuedFile: req.file.path
         });
         res.redirect('/panchayat/dashboard');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Approval Failed: " + err.message);
-    }
+    } catch (err) { res.status(500).send("Approval Failed: " + err.message); }
 });
-// --- Admin Side: Reject Certificate Request ---
+
 app.post('/admin/certificate/reject/:id', async (req, res) => {
     try {
-        await Certificate.findByIdAndUpdate(req.params.id, {
-            status: 'Rejected'
-        });
+        await Certificate.findByIdAndUpdate(req.params.id, { status: 'Rejected' });
         res.redirect('/panchayat/dashboard');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Rejection Failed: " + err.message);
-    }
+    } catch (err) { res.status(500).send("Rejection Failed: " + err.message); }
 });
+
+app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
+
+app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));
