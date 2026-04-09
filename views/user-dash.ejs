@@ -61,14 +61,11 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1500; }
         .overlay.active { display: block; }
         
-        /* ✅ MOBILE OPTIMIZATION CSS */
         @media (max-width: 992px) { 
             .sidebar { transform: translateX(-100%); } 
             .main-wrapper { margin-left: 0; width: 100%; padding: 20px; padding-top: 90px; } 
             .content-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            
-            /* Table to Card conversion */
             .history-table thead { display: none; }
             .history-table, .history-table tbody, .history-table tr, .history-table td { display: block; width: 100%; }
             .history-table tr { margin-bottom: 15px; border: 1px solid #f1f5f9; border-radius: 15px; }
@@ -134,12 +131,24 @@
                 <div class="card">
                     <h3>📝 Raise New Issue</h3>
                     <form action="/complaints/add" method="POST" enctype="multipart/form-data">
-                        <select name="category" class="input-field" required><option value="" disabled selected>Select Category</option><option>Road Damage</option><option>Water Leakage</option><option>Street Light</option><option>Sanitation</option></select>
+                        <select name="category" class="input-field" required>
+                            <option value="" disabled selected>Select Category</option>
+                            <option>Road Damage</option>
+                            <option>Water Leakage</option>
+                            <option>Street Light</option>
+                            <option>Sanitation</option>
+                        </select>
                         <textarea name="description" id="complaint_desc" class="input-field" rows="3" placeholder="Explain the problem..." required></textarea>
-                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak</button>
-                        <input type="hidden" name="latitude" id="lat"><input type="hidden" name="longitude" id="lon">
+                        
+                        <button type="button" id="start-voice-btn" style="border: none; background: none; color: var(--primary); font-size: 12px; cursor: pointer; font-weight: 700; margin-top: 5px;">🎤 Tap to Speak (Marathi)</button>
+                        
+                        <input type="hidden" name="latitude" id="lat">
+                        <input type="hidden" name="longitude" id="lon">
+                        
                         <button type="button" onclick="getGPSLocation()" id="gpsBtn" style="width:100%; margin-top:12px; border:1px dashed var(--primary); padding:12px; border-radius:12px; cursor:pointer; font-weight: 600; color: var(--primary); background: var(--primary-light);">📍 Tag My GPS Location</button>
-                        <input type="file" name="complaintImage" class="input-field">
+                        
+                        <input type="file" name="complaintImage" class="input-field" accept="image/*">
+                        
                         <button type="submit" class="btn-submit">Submit Official Report</button>
                     </form>
                 </div>
@@ -221,7 +230,7 @@
         <form action="/user/update" method="POST" enctype="multipart/form-data">
             <div style="margin-bottom: 15px;">
                 <label style="font-size: 11px; font-weight: 700; color: var(--text-sub);">Full Name</label>
-                <input type="text" name="name" value="<%= user.name %>" class="input-field" placeholder="Full Name" required>
+                <input type="text" name="name" value="<%= user.name %>" class="input-field" required>
             </div>
             <div style="margin-bottom: 15px;">
                 <label style="font-size: 11px; font-weight: 700; color: var(--text-sub);">Mobile Number</label>
@@ -245,24 +254,39 @@
         function openModal(title, body) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalBody').innerText = body; document.getElementById('descModal').style.display = 'block'; document.getElementById('overlay').classList.add('active'); }
         function closeModal() { document.getElementById('descModal').style.display = 'none'; if(!document.getElementById('profileDrawer').classList.contains('active')) document.getElementById('overlay').classList.remove('active'); }
         
+        // ✅ UPDATED GPS LOGIC (Guaranteed capture)
         function getGPSLocation() { 
+            const btn = document.getElementById('gpsBtn');
+            btn.innerText = "📍 Capturing GPS...";
+            
             if (navigator.geolocation) { 
-                navigator.geolocation.getCurrentPosition((pos) => { 
-                    document.getElementById('lat').value = pos.coords.latitude; 
-                    document.getElementById('lon').value = pos.coords.longitude; 
-                    document.getElementById('gpsBtn').innerText = "✅ Location Tagged"; 
-                    document.getElementById('gpsBtn').style.background = "#D8F3DC";
-                }); 
-            } 
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => { 
+                        document.getElementById('lat').value = pos.coords.latitude; 
+                        document.getElementById('lon').value = pos.coords.longitude; 
+                        btn.innerText = "✅ Location Tagged (" + pos.coords.latitude.toFixed(4) + ")"; 
+                        btn.style.background = "#D8F3DC";
+                        btn.style.borderColor = "#2D6A4F";
+                    },
+                    (err) => {
+                        alert("Please enable location access in browser settings.");
+                        btn.innerText = "❌ GPS Error - Try Again";
+                    },
+                    { enableHighAccuracy: true }
+                ); 
+            } else {
+                alert("Geolocation is not supported by your browser.");
+            }
         }
 
+        // Voice Recognition
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         recognition.lang = 'mr-IN';
         document.getElementById('start-voice-btn').onclick = () => { recognition.start(); document.getElementById('start-voice-btn').innerText = "Listening..."; };
         recognition.onresult = (e) => { document.getElementById('complaint_desc').value += e.results[0][0].transcript; };
-        recognition.onend = () => { document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak"; };
-        recognition.onerror = () => { document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak"; };
+        recognition.onend = () => { document.getElementById('start-voice-btn').innerText = "🎤 Tap to Speak (Marathi)"; };
 
+        // Chart
         const complaintsData = <%- JSON.stringify(complaints) %>;
         const counts = { 'Pending': 0, 'In-Progress': 0, 'Resolved': 0, 'Rejected': 0 };
         complaintsData.forEach(c => { if(counts[c.status] !== undefined) counts[c.status]++; });

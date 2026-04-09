@@ -38,20 +38,28 @@
         /* --- SIDEBAR --- */
         .sidebar { width: var(--sidebar-width); background: var(--white); border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; position: fixed; height: calc(100vh - var(--nav-height)); top: var(--nav-height); left: 0; z-index: 1000; }
         
-        /* ✅ FIXED SIDEBAR HEADER: Name below logo */
+        /* ✅ CSS FIX: Logo and Name centered vertically */
         .sidebar-header { 
             padding: 30px 15px; 
             background: var(--primary-soft); 
             text-align: center; 
-            border-bottom: 1px solid #e2e8f0; 
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
         .panchayat-logo-container { 
-            width: 75px; height: 75px; background: white; border-radius: 50%; 
-            margin-bottom: 12px; border: 2px solid var(--primary); 
-            overflow: hidden; display: flex; align-items: center; justify-content: center; 
+            width: 75px; 
+            height: 75px; 
+            background: white; 
+            border-radius: 50%; 
+            margin-bottom: 12px; 
+            border: 2px solid var(--primary); 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
         }
         .panchayat-logo-container img { width: 100%; height: 100%; object-fit: cover; }
         
@@ -67,7 +75,7 @@
         .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .pending { background: #fff7ed; color: #c2410c; } .in-progress { background: #eff6ff; color: #1d4ed8; } .resolved { background: #f0fdf4; color: #166534; } .rejected { background: #fef2f2; color: #b91c1c; }
 
-        /* ✅ AI PRIORITY COLORS FIXED */
+        /* ✅ AI PRIORITY COLORS */
         .ai-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; margin-top: 5px; color: white; }
         .priority-high { background: linear-gradient(135deg, #ef4444, #b91c1c) !important; }
         .priority-normal { background: linear-gradient(135deg, #6366f1, #a855f7) !important; }
@@ -110,8 +118,12 @@
 
 <aside class="sidebar">
     <div class="sidebar-header">
-        <div class="panchayat-logo-container"><img src="<%= user.profilePic || 'https://via.placeholder.com/150' %>"></div>
-        <div style="font-weight: 800; color: var(--primary); font-size: 14px; text-transform: uppercase;"><%= user.panchayatName %></div>
+        <div class="panchayat-logo-container">
+            <img src="<%= user.profilePic || 'https://via.placeholder.com/150' %>">
+        </div>
+        <div style="font-weight: 800; color: var(--primary); font-size: 14px; text-transform: uppercase; line-height: 1.2; width: 100%;">
+            <%= user.panchayatName %>
+        </div>
     </div>
     <nav style="padding:20px; display:flex; flex-direction:column; gap:10px;">
         <a href="/panchayat/dashboard" style="text-decoration:none; color:white; font-weight:700; padding:12px; background:var(--primary); border-radius:12px;">📊 Dashboard</a>
@@ -212,7 +224,7 @@
             <thead>
                 <tr style="text-align:left; color:var(--text-sub);">
                     <th>Citizen & Address</th>
-                    <th>Issue & AI Priority</th>
+                    <th>Issue & Priority</th>
                     <th>Location</th>
                     <th>Details</th>
                     <th>Evidence</th>
@@ -260,7 +272,7 @@
                                         <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
                                     </select>
                                 </form>
-                                <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Delete?');">
+                                <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Delete permanently?');">
                                     <button type="submit" style="background:#fee2e2; color:var(--danger); border:none; padding:6px 8px; border-radius:8px; cursor:pointer;">🗑️</button>
                                 </form>
                             </div>
@@ -293,26 +305,25 @@
     function closeModal() { document.getElementById('descModal').style.display = 'none'; if(!document.getElementById('adminDrawer').classList.contains('active')) document.getElementById('overlay').classList.remove('active'); }
     function openModal(t, b) { document.getElementById('modalTitle').innerText = t; document.getElementById('modalBody').innerText = b; document.getElementById('descModal').style.display = 'block'; document.getElementById('overlay').classList.add('active'); }
 
-    // Search Logic
     document.getElementById('smartSearch').addEventListener('keyup', function() {
         let val = this.value.toLowerCase();
         document.querySelectorAll("#complaintTableBody tr").forEach(row => {
             row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
         });
     });
-
-    // Chart Logic
-    const ctx = document.getElementById('complaintsChart').getContext('2d');
+    
     const rawData = <%- JSON.stringify(complaints) %>;
     const counts = {}; rawData.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
-    new Chart(ctx, { type: 'bar', data: { labels: Object.keys(counts), datasets: [{ label: 'Issues', data: Object.values(counts), backgroundColor: '#1a7431' }] }, options: { responsive: true, maintainAspectRatio: false } });
+    new Chart(document.getElementById('complaintsChart').getContext('2d'), {
+        type: 'bar', data: { labels: Object.keys(counts), datasets: [{ label: 'Cases', data: Object.values(counts), backgroundColor: '#1a7431', borderRadius: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
 
-    // ✅ PROFESSIONAL PDF REPORT GENERATOR
     function generatePDF() {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4'); // Landscape mode
+        const doc = new jsPDF('l', 'mm', 'a4'); 
         doc.setFontSize(22);
-        doc.setTextColor(26, 116, 49); // Official Green
+        doc.setTextColor(26, 116, 49);
         doc.text("Official Village Grievance Report", 14, 20);
         doc.setFontSize(10);
         doc.setTextColor(100);

@@ -1,25 +1,26 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-const Certificate = require('./models/Certificate');
-const Scheme = require('./models/Scheme');
+
+// --- 1. DEPENDENCIES ---
 const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const session = require('express-session');
 const path = require('path');
-const similarity = require('string-similarity');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const multer = require('multer');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// --- 1. MODELS ---
+// --- 2. MODELS ---
 const User = require('./models/User');
 const Complaint = require('./models/Complaint');
 const News = require('./models/News'); 
+const Certificate = require('./models/Certificate');
+const Scheme = require('./models/Scheme');
 
-// --- 2. CLOUDINARY CONFIG ---
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// --- 3. CLOUDINARY CONFIG ---
 cloudinary.config({
     cloud_name: 'dh8mv8nlo',
     api_key: '195988474883287',
@@ -35,14 +36,14 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- 3. DATABASE CONNECTION ---
+// --- 4. DATABASE CONNECTION ---
 const uri = "mongodb+srv://tejastulaskar0_db_user:Tejas%401234@cluster0.gurjxzf.mongodb.net/egramseva?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose.connect(uri)
     .then(() => console.log("Database Connection Established ✅"))
     .catch((error) => console.error("❌ Database Connection Error:", error.message));
 
-// --- 4. MIDDLEWARE ---
+// --- 5. MIDDLEWARE ---
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.json());
@@ -53,7 +54,7 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// --- 5. EMAIL TRANSPORTER ---
+// --- 6. EMAIL TRANSPORTER ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -62,7 +63,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// --- 6. ROUTES ---
+// --- 7. ROUTES ---
 
 // A. LANDING PAGE
 app.get('/', async (req, res) => {
@@ -78,15 +79,11 @@ app.get('/', async (req, res) => {
 app.get('/login', (req, res) => res.render("login"));
 app.get('/signup', (req, res) => res.render('signup'));
 
-// ✅ SIGNUP LOGIC (Fixed Enum Validation)
+// ✅ SIGNUP LOGIC
 app.post('/auth/signup', async (req, res) => {
     try {
         let { name, email, password, role } = req.body;
-
-        // Validation: Role must be 'citizen' or 'panchayat'
-        if (!role || role === 'user') {
-            role = 'citizen';
-        }
+        if (!role || role === 'user') role = 'citizen';
 
         let isApproved = (role === 'panchayat');
 
@@ -172,22 +169,32 @@ app.post('/admin/reject-user/:id', async (req, res) => {
     } catch (err) { res.status(500).send("Rejection Failed"); }
 });
 
-// D. GRIEVANCE MANAGEMENT
+// ✅ D. GRIEVANCE MANAGEMENT (WITH LOCATION FIX)
 app.post('/complaints/add', upload.single('complaintImage'), async (req, res) => {
     try {
-        const { category, description } = req.body;
+        const { category, description, latitude, longitude } = req.body;
         let imageUrl = req.file ? req.file.path : null;
+        
         let aiPriority = "Normal";
         const urgentWords = ["broken", "leakage", "emergency", "flood", "dark", "accident", "danger", "urgent", "leak"];
         if (urgentWords.some(word => description.toLowerCase().includes(word))) aiPriority = "High";
 
         const newComp = new Complaint({
             citizen: req.session.userId,
-            category, description, imageUrl, aiPriority
+            category, 
+            description, 
+            imageUrl, 
+            aiPriority,
+            latitude: latitude || null,
+            longitude: longitude || null
         });
+        
         await newComp.save();
         res.redirect('/user/dashboard');
-    } catch (err) { res.status(500).send("Complaint Submission Error"); }
+    } catch (err) { 
+        console.error(err);
+        res.status(500).send("Complaint Submission Error"); 
+    }
 });
 
 app.post('/complaints/update/:id', async (req, res) => {
@@ -205,29 +212,58 @@ app.post('/complaints/delete/:id', async (req, res) => {
     } catch (err) { res.status(500).send("Deletion Failed"); }
 });
 
-// E. PROFILE & OTHER SERVICES
+// E. PROFILE & SETTINGS (Fixed for Photo Update Error)
 app.post('/user/update', upload.single('profilePic'), async (req, res) => {
     try {
-        const { name, designation, mobile, address } = req.body;
-        const updateData = { name, designation, mobile, address };
-        if (req.file) updateData.profilePic = req.file.path;
+        const { name, designation, mobile, address, panchayatName } = req.body;
         
-        const updatedUser = await User.findByIdAndUpdate(req.session.userId, updateData, { new: true });
+        // 1. Pehle database se purana user dhoondo
+        const user = await User.findById(req.session.userId);
+        if (!user) return res.status(404).send("User not found");
+
+        // 2. Data update karo
+        user.name = name || user.name;
+        user.designation = designation || user.designation;
+        user.mobile = mobile || user.mobile;
+        user.address = address || user.address;
+        user.panchayatName = panchayatName || user.panchayatName;
+
+        // 3. ✅ Check karo agar user ne sach mein nayi photo upload ki hai
+        if (req.file && req.file.path) {
+            user.profilePic = req.file.path; // Cloudinary ka naya URL
+        }
+        
+        // 4. Database mein save karo
+        const updatedUser = await user.save();
+
+        // 5. ✅ CRITICAL FIX: Session ko update karein warna error aayegi
         req.session.user = updatedUser;
+
+        // 6. Redirect correctly
         res.redirect(updatedUser.role === 'panchayat' ? '/panchayat/dashboard' : '/user/dashboard');
-    } catch (err) { res.status(500).send("Profile Update Error"); }
+
+    } catch (err) { 
+        console.error("Profile Update Error Trace:", err);
+        res.status(500).send("Profile Update Error: " + err.message); 
+    }
 });
 
+// F. NEWS & SCHEMES
 app.post('/admin/post-news', async (req, res) => {
-    try { await new News(req.body).save(); res.redirect('/panchayat/dashboard'); } 
-    catch (err) { res.status(500).send("News Post Failed"); }
+    try { 
+        await new News(req.body).save(); 
+        res.redirect('/panchayat/dashboard'); 
+    } catch (err) { res.status(500).send("News Post Failed"); }
 });
 
 app.post('/admin/add-scheme', async (req, res) => {
-    try { await Scheme.create(req.body); res.redirect('/panchayat/dashboard'); }
-    catch (err) { res.status(500).send("Scheme Posting Failed"); }
+    try { 
+        await Scheme.create(req.body); 
+        res.redirect('/panchayat/dashboard'); 
+    } catch (err) { res.status(500).send("Scheme Posting Failed"); }
 });
 
+// G. CERTIFICATE SERVICES
 app.post('/certificates/request', async (req, res) => {
     try {
         const { type, reason } = req.body;
@@ -238,14 +274,19 @@ app.post('/certificates/request', async (req, res) => {
 
 app.post('/admin/certificate/approve/:id', upload.single('certFile'), async (req, res) => {
     try {
-        await Certificate.findByIdAndUpdate(req.params.id, { status: 'Approved', issuedFile: req.file.path });
+        await Certificate.findByIdAndUpdate(req.params.id, { 
+            status: 'Approved', 
+            issuedFile: req.file.path 
+        });
         res.redirect('/panchayat/dashboard');
     } catch (err) { res.status(500).send("Issuance Failed"); }
 });
 
 app.post('/admin/certificate/reject/:id', async (req, res) => {
-    try { await Certificate.findByIdAndUpdate(req.params.id, { status: 'Rejected' }); res.redirect('/panchayat/dashboard'); }
-    catch (err) { res.status(500).send("Rejection Failed"); }
+    try { 
+        await Certificate.findByIdAndUpdate(req.params.id, { status: 'Rejected' }); 
+        res.redirect('/panchayat/dashboard'); 
+    } catch (err) { res.status(500).send("Rejection Failed"); }
 });
 
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
