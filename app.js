@@ -293,6 +293,18 @@ app.post('/admin/reject-user/:id', async (req, res) => {
         res.status(500).send("Rejection Failed: " + err.message);
     }
 });
+// ✅ REJECT USER: Deletes the pending request from database
+app.post('/admin/reject-user/:id', async (req, res) => {
+    if (!req.session.userId || req.session.role !== 'panchayat') {
+        return res.status(403).send("Unauthorized Access");
+    }
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.redirect('/panchayat/dashboard');
+    } catch (err) {
+        res.status(500).send("Rejection Failed: " + err.message);
+    }
+});
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
 app.listen(PORT, () => console.log(`🚀 e-GramSeva Server active on port ${PORT}`));

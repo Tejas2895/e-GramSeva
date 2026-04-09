@@ -221,22 +221,45 @@
             <tbody id="complaintTableBody">
                 <% complaints.forEach(complaint => { %>
                     <tr>
-                        <td data-label="Citizen"><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
-                        <td data-label="Issue"><%= complaint.category %><br><div class="ai-badge">🤖 Priority: <%= complaint.aiPriority %></div></td>
-                        <td data-label="Details"><button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" style="background:var(--primary-soft); color:var(--primary); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700;">View</button></td>
-                        <td data-label="Evidence"><img src="<%= complaint.imageUrl %>" style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)"></td>
-                        <td data-label="Status"><span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span></td>
-                        <td data-label="Action">
-                            <form action="/complaints/update/<%= complaint._id %>" method="POST">
-                                <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px;">
-                                    <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
-                                    <option value="In-Progress" <%= complaint.status==='In-Progress'?'selected':'' %>>In-Progress</option>
-                                    <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
-                                    <option value="Rejected" <%= complaint.status==='Rejected'?'selected':'' %>>Rejected</option>
-                                </select>
-                            </form>
-                        </td>
-                    </tr>
+    <td data-label="Citizen"><b><%= complaint.citizen ? complaint.citizen.name : 'Unknown' %></b></td>
+    <td data-label="Issue"><%= complaint.category %><br><div class="ai-badge">🤖 Priority: <%= complaint.aiPriority %></div></td>
+    
+    <td data-label="Details">
+        <div style="display: flex; gap: 8px;">
+            <button onclick="openModal('<%= complaint.category %>', '<%= (complaint.description || '').replace(/'/g, '\\\'') %>')" 
+                style="background:var(--primary-soft); color:var(--primary); border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size: 11px;">
+                View
+            </button>
+
+            <form action="/complaints/delete/<%= complaint._id %>" method="POST" onsubmit="return confirm('Are you sure?');" style="margin:0;">
+                <button type="submit" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size: 11px; font-weight: 700;">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </td>
+
+    <td data-label="Evidence">
+        <% if(complaint.imageUrl) { %>
+            <img src="<%= complaint.imageUrl %>" style="width:40px; height:40px; border-radius:8px; object-fit:cover; cursor:pointer;" onclick="window.open(this.src)">
+        <% } else { %> - <% } %>
+    </td>
+    
+    <td data-label="Status">
+        <span class="status-pill <%= complaint.status.toLowerCase().replace(' ', '-') %>"><%= complaint.status %></span>
+    </td>
+
+    <td data-label="Action">
+        <form action="/complaints/update/<%= complaint._id %>" method="POST">
+            <select name="status" onchange="this.form.submit()" style="padding:6px; border-radius:8px; font-size:11px;">
+                <option value="Pending" <%= complaint.status==='Pending'?'selected':'' %>>Pending</option>
+                <option value="In-Progress" <%= complaint.status==='In-Progress'?'selected':'' %>>In-Progress</option>
+                <option value="Resolved" <%= complaint.status==='Resolved'?'selected':'' %>>Resolved</option>
+                <option value="Rejected" <%= complaint.status==='Rejected'?'selected':'' %>>Rejected</option>
+            </select>
+        </form>
+    </td>
+</tr>
                 <% }) %>
             </tbody>
         </table>
