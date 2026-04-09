@@ -86,15 +86,15 @@ app.post('/auth/signup', async (req, res) => {
             name,
             email,
             password,
-            role: 'citizen',    // Forcefully set as citizen
-            isApproved: false   // Forcefully set as pending
+            role: 'citizen',    
+            isApproved: false  
         });
         await newUser.save();
         res.send(`
             <div style="font-family:sans-serif; text-align:center; padding:50px; background:#f8fafc; min-height:100vh;">
                 <div style="background:white; padding:40px; border-radius:20px; display:inline-block; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
                     <h2 style="color: #1a7431;">Signup Successful! ✅</h2>
-                    <p style="color: #64748b;">Aapka account Admin approval ke liye pending hai.<br>Verification ke baad hi aap login kar payenge.</p>
+                    <p style="color: #64748b;">Your account is pending for admin approval.<br>You can log in only after your account has been verified.</p>
                     <a href="/login" style="background:#1a7431; color:white; padding:12px 25px; text-decoration:none; border-radius:10px; display:inline-block; margin-top:20px; font-weight:bold;">Go to Login</a>
                 </div>
             </div>
@@ -114,8 +114,8 @@ app.post('/auth/login', async (req, res) => {
                 return res.send(`
                     <div style="text-align:center; margin-top:50px; font-family:sans-serif;">
                         <h2 style="color:#ef4444;">⛔ Access Denied</h2>
-                        <p>Aapka account abhi tak Admin ne approve nahi kiya hai.</p>
-                        <a href="/login">Wapis jayein</a>
+                        <p>Your account has not yet been approved by the admin.</p>
+                        <a href="/login">Go back.</a>
                     </div>
                 `);
             }
@@ -166,7 +166,7 @@ app.get('/panchayat/dashboard', async (req, res) => {
     } catch (err) { res.status(500).send("Panchayat Dashboard Error"); }
 });
 
-// ✅ FIXED APPROVE ROUTE: Using POST as per EJS update
+// FIXED APPROVE ROUTE: Using POST as per EJS update
 app.post('/admin/approve-user/:id', async (req, res) => {
     if (req.session.role !== 'panchayat') return res.status(403).send("Unauthorized");
     try {
