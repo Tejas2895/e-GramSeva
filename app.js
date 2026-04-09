@@ -39,8 +39,8 @@ const upload = multer({ storage: storage });
 const uri = "mongodb+srv://tejastulaskar0_db_user:Tejas%401234@cluster0.gurjxzf.mongodb.net/egramseva?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose.connect(uri)
-  .then(() => console.log("Successfully connected to MongoDB Atlas! ✅"))
-  .catch((error) => console.error("❌ Connection error:", error.message));
+  .then(() => console.log("Database Connection Established ✅"))
+  .catch((error) => console.error("❌ Database Connection Error:", error.message));
 
 // --- 4. MIDDLEWARE ---
 app.set('view engine', 'ejs');
@@ -48,7 +48,7 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'secret-key',
+    secret: 'eGramSeva_Super_Secret_Key',
     resave: false,
     saveUninitialized: true
 }));
@@ -78,57 +78,75 @@ app.get('/', async (req, res) => {
 app.get('/login', (req, res) => res.render("login"));
 app.get('/signup', (req, res) => res.render('signup'));
 
-// ✅ FIXED SIGNUP: Forcing role and isApproved status
+// ✅ PROFESSIONAL SIGNUP: Logic for Admin Auto-Approval vs Citizen Pending
 app.post('/auth/signup', async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
+
+        // Auto-approve Panchayat officers, keep Citizens pending
+        let isApproved = false;
+        if (role === 'panchayat') {
+            isApproved = true; 
+        }
+
         const newUser = new User({
             name,
             email,
             password,
-            role: 'citizen',    
-            isApproved: false  
+            role: role || 'citizen',
+            isApproved: isApproved
         });
+
         await newUser.save();
+
+        const message = isApproved 
+            ? "Your Administrative account is active. You can log in now." 
+            : "Your account has been created and is currently awaiting verification from the Panchayat Office.";
+
         res.send(`
-            <div style="font-family:sans-serif; text-align:center; padding:50px; background:#f8fafc; min-height:100vh;">
-                <div style="background:white; padding:40px; border-radius:20px; display:inline-block; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
-                    <h2 style="color: #1a7431;">Signup Successful! ✅</h2>
-                    <p style="color: #64748b;">Your account is pending for admin approval.<br>You can log in only after your account has been verified.</p>
-                    <a href="/login" style="background:#1a7431; color:white; padding:12px 25px; text-decoration:none; border-radius:10px; display:inline-block; margin-top:20px; font-weight:bold;">Go to Login</a>
+            <div style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align:center; padding:50px; background:#f0f4f8; min-height:100vh;">
+                <div style="background:white; padding:40px; border-radius:15px; display:inline-block; box-shadow:0 15px 35px rgba(0,0,0,0.1); max-width:500px;">
+                    <h2 style="color: #2d6a4f;">Registration Successful! ✅</h2>
+                    <p style="color: #4a5568; line-height:1.6;">${message}</p>
+                    <hr style="margin:20px 0; border:0; border-top:1px solid #e2e8f0;">
+                    <a href="/login" style="background:#2d6a4f; color:white; padding:12px 30px; text-decoration:none; border-radius:8px; display:inline-block; font-weight:600; transition:0.3s;">Return to Login</a>
                 </div>
             </div>
         `);
-    } catch (err) { res.status(500).send("Signup Failed: " + err.message); }
+    } catch (err) { 
+        console.error(err);
+        res.status(500).send("Registration Error: " + err.message); 
+    }
 });
 
-// ✅ FIXED LOGIN: Strict check for Approval
+// ✅ PROFESSIONAL LOGIN: Status Check
 app.post('/auth/login', async (req, res) => {
     try {
         const { email, password, role } = req.body;
         const user = await User.findOne({ email, password, role });
         
         if (user) {
-            // Block Citizens who are not yet approved (null or false)
-            if (user.role === 'citizen' && (user.isApproved === false || user.isApproved === undefined)) {
+            // Block Citizens who are not yet approved
+            if (user.role === 'citizen' && !user.isApproved) {
                 return res.send(`
-                    <div style="text-align:center; margin-top:50px; font-family:sans-serif;">
-                        <h2 style="color:#ef4444;">⛔ Access Denied</h2>
-                        <p>Your account has not yet been approved by the admin.</p>
-                        <a href="/login">Go back.</a>
+                    <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
+                        <div style="background:#fff5f5; border:1px solid #feb2b2; color:#c53030; padding:30px; border-radius:12px; display:inline-block;">
+                            <h2 style="margin:0;">⛔ Access Restricted</h2>
+                            <p>Your account is currently under review by the Gram Panchayat Admin.</p>
+                            <a href="/login" style="color:#c53030; font-weight:bold;">Try again later</a>
+                        </div>
                     </div>
                 `);
             }
 
-            // Grant session if approved or if user is Admin
             req.session.userId = user._id;
             req.session.user = user;
             req.session.role = user.role;
             res.redirect(user.role === 'panchayat' ? '/panchayat/dashboard' : '/user/dashboard');
         } else { 
-            res.send("Invalid Credentials. Please check Email/Password/Role."); 
+            res.send("Authentication Failed. Please verify your credentials and role."); 
         }
-    } catch (err) { res.status(500).send("Login Error"); }
+    } catch (err) { res.status(500).send("An internal server error occurred."); }
 });
 
 // B. DASHBOARDS
@@ -141,7 +159,7 @@ app.get('/user/dashboard', async (req, res) => {
         const certificates = await Certificate.find({ citizen: req.session.userId }).sort({ createdAt: -1 });
 
         res.render('user-dash', { user: req.session.user, complaints, news, schemes, certificates });
-    } catch (err) { res.status(500).send("Dashboard Error"); }
+    } catch (err) { res.status(500).send("Could not load User Dashboard."); }
 });
 
 app.get('/panchayat/dashboard', async (req, res) => {
@@ -151,31 +169,23 @@ app.get('/panchayat/dashboard', async (req, res) => {
         const news = await News.find().sort({ createdAt: -1 }); 
         const certRequests = await Certificate.find({ status: 'Pending' }).populate('citizen');
         const schemes = await Scheme.find().sort({ updatedAt: -1 });
-        
-        // Fetch ALL users where isApproved is strictly false
         const pendingUsers = await User.find({ role: 'citizen', isApproved: false });
 
         res.render('panchayat-dash', { 
-            user: req.session.user, 
-            complaints, 
-            news, 
-            certRequests, 
-            schemes,
-            pendingUsers 
+            user: req.session.user, complaints, news, certRequests, schemes, pendingUsers 
         });
-    } catch (err) { res.status(500).send("Panchayat Dashboard Error"); }
+    } catch (err) { res.status(500).send("Could not load Panchayat Dashboard."); }
 });
 
-// FIXED APPROVE ROUTE: Using POST as per EJS update
+// C. ACTIONS
 app.post('/admin/approve-user/:id', async (req, res) => {
-    if (req.session.role !== 'panchayat') return res.status(403).send("Unauthorized");
+    if (req.session.role !== 'panchayat') return res.status(403).send("Unauthorized Access");
     try {
         await User.findByIdAndUpdate(req.params.id, { isApproved: true });
         res.redirect('/panchayat/dashboard');
-    } catch (err) { res.status(500).send("Approval Failed"); }
+    } catch (err) { res.status(500).send("Process Failed"); }
 });
 
-// C. COMPLAINT MANAGEMENT
 app.post('/complaints/add', upload.single('complaintImage'), async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     try {
@@ -204,10 +214,10 @@ app.post('/complaints/add', upload.single('complaintImage'), async (req, res) =>
 
         await newComp.save();
         res.redirect('/user/dashboard');
-    } catch (err) { res.status(500).send("Complaint Error"); }
+    } catch (err) { res.status(500).send("Submission Error"); }
 });
 
-// D. ADMIN ACTIONS (NEWS, UPDATES, LOGOUT)
+// ADMIN LOGIC UPDATES
 app.post('/complaints/update/:id', async (req, res) => {
     try {
         const { status } = req.body;
@@ -219,8 +229,8 @@ app.post('/complaints/update/:id', async (req, res) => {
             const mailOptions = {
                 from: '"e-GramSeva Support" <tejastulaskar0@gmail.com>',
                 to: complaint.citizen.email,
-                subject: `Status Updated: ${complaint.category}`,
-                text: `Your complaint status is now: ${status}.`
+                subject: `Grievance Status Update: ${complaint.category}`,
+                text: `Dear ${complaint.citizen.name}, your complaint status has been updated to: ${status}.`
             };
             transporter.sendMail(mailOptions);
         }
@@ -236,15 +246,14 @@ app.post('/user/update', upload.single('profilePic'), async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(req.session.userId, updateData, { new: true });
         req.session.user = updatedUser;
         res.redirect(updatedUser.role === 'panchayat' ? '/panchayat/dashboard' : '/user/dashboard');
-    } catch (err) { res.status(500).send("Update Error"); }
+    } catch (err) { res.status(500).send("Profile Update Error"); }
 });
 
 app.post('/admin/post-news', async (req, res) => {
     try {
-        const newNews = new News(req.body);
-        await newNews.save();
+        await new News(req.body).save();
         res.redirect('/panchayat/dashboard');
-    } catch (err) { res.status(500).send("News Failed"); }
+    } catch (err) { res.status(500).send("News Post Failed"); }
 });
 
 app.post('/certificates/request', async (req, res) => {
@@ -262,7 +271,7 @@ app.post('/admin/certificate/approve/:id', upload.single('certFile'), async (req
     try {
         await Certificate.findByIdAndUpdate(req.params.id, { status: 'Approved', issuedFile: req.file.path });
         res.redirect('/panchayat/dashboard');
-    } catch (err) { res.status(500).send("Approval Failed"); }
+    } catch (err) { res.status(500).send("Issuance Failed"); }
 });
 
 app.post('/admin/certificate/reject/:id', async (req, res) => {
@@ -272,4 +281,4 @@ app.post('/admin/certificate/reject/:id', async (req, res) => {
 
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
-app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 e-GramSeva Server active on port ${PORT}`));
