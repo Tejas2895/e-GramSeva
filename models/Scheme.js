@@ -4,8 +4,7 @@ const SchemeSchema = new mongoose.Schema({
     name: { type: String, required: true }, // Scheme ka naam (e.g., Road Repair)
     fundAllocated: { type: String, required: true }, // Kitna paisa aaya (e.g., ₹5,00,000)
     description: { type: String },
-     isApproved: { type: Boolean, default: false },
-   
+     
     status: { 
         type: String, 
         default: 'Announced', 

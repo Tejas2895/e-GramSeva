@@ -5,14 +5,18 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     isApproved: { type: Boolean, default: false },
-    // Example in User.js
-mobile: String,
-address: String,
-profilePic: String,
-panchayatName: String,
-    designation: String,
-    role: { type: String, enum: ['user', 'panchayat'], default: 'user' }
+    mobile: { type: String, default: '' },
+    address: { type: String, default: '' },
+    profilePic: { type: String, default: '' },
+    panchayatName: { type: String, default: '' },
+    designation: { type: String, default: '' },
     
+    // ✅ FIX YAHAN HAI: Default ko 'citizen' karo aur enum ke sath match rakho
+    role: { 
+        type: String, 
+        enum: ['citizen', 'panchayat'], 
+        default: 'citizen' 
+    }
 });
 
 module.exports = mongoose.model('User', UserSchema);
