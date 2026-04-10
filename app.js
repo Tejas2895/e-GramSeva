@@ -79,7 +79,7 @@ app.get('/', async (req, res) => {
 app.get('/login', (req, res) => res.render("login"));
 app.get('/signup', (req, res) => res.render('signup'));
 
-// ✅ SIGNUP LOGIC
+// SIGNUP LOGIC
 app.post('/auth/signup', async (req, res) => {
     try {
         let { name, email, password, role } = req.body;
@@ -110,7 +110,7 @@ app.post('/auth/signup', async (req, res) => {
     } catch (err) { res.status(500).send("Registration Error: " + err.message); }
 });
 
-// ✅ LOGIN LOGIC
+//  LOGIN LOGIC
 app.post('/auth/login', async (req, res) => {
     try {
         const { email, password, role } = req.body;
@@ -169,7 +169,7 @@ app.post('/admin/reject-user/:id', async (req, res) => {
     } catch (err) { res.status(500).send("Rejection Failed"); }
 });
 
-// ✅ D. GRIEVANCE MANAGEMENT (WITH LOCATION FIX)
+// D. GRIEVANCE MANAGEMENT (WITH LOCATION FIX)
 app.post('/complaints/add', upload.single('complaintImage'), async (req, res) => {
     try {
         const { category, description, latitude, longitude } = req.body;
@@ -212,34 +212,33 @@ app.post('/complaints/delete/:id', async (req, res) => {
     } catch (err) { res.status(500).send("Deletion Failed"); }
 });
 
-// E. PROFILE & SETTINGS (Fixed for Photo Update Error)
+// E. PROFILE & SETTINGS 
 app.post('/user/update', upload.single('profilePic'), async (req, res) => {
     try {
         const { name, designation, mobile, address, panchayatName } = req.body;
         
-        // 1. Pehle database se purana user dhoondo
+        
         const user = await User.findById(req.session.userId);
         if (!user) return res.status(404).send("User not found");
 
-        // 2. Data update karo
         user.name = name || user.name;
         user.designation = designation || user.designation;
         user.mobile = mobile || user.mobile;
         user.address = address || user.address;
         user.panchayatName = panchayatName || user.panchayatName;
 
-        // 3. ✅ Check karo agar user ne sach mein nayi photo upload ki hai
+        
         if (req.file && req.file.path) {
-            user.profilePic = req.file.path; // Cloudinary ka naya URL
+            user.profilePic = req.file.path; 
         }
         
-        // 4. Database mein save karo
+       
         const updatedUser = await user.save();
 
-        // 5. ✅ CRITICAL FIX: Session ko update karein warna error aayegi
+       
         req.session.user = updatedUser;
 
-        // 6. Redirect correctly
+        
         res.redirect(updatedUser.role === 'panchayat' ? '/panchayat/dashboard' : '/user/dashboard');
 
     } catch (err) { 

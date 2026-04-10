@@ -319,25 +319,76 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
-    function generatePDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4'); 
-        doc.setFontSize(22);
-        doc.setTextColor(26, 116, 49);
-        doc.text("Official Village Grievance Report", 14, 20);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text("System Generated via e-GramSeva AI Portal | Date: " + new Date().toLocaleDateString(), 14, 28);
-        doc.text("Village Office: <%= user.panchayatName %>", 14, 33);
-        doc.autoTable({ 
-            html: '#complaintTable', 
-            startY: 40,
-            theme: 'grid',
-            headStyles: { fillColor: [26, 116, 49], textColor: [255, 255, 255] },
-            styles: { fontSize: 8 }
-        });
-        doc.save("<%= user.panchayatName %>_Report.pdf");
+   function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); 
+
+    // 1. Header Styling
+    doc.setFontSize(22);
+    doc.setTextColor(26, 116, 49);
+    doc.text("Official Village Grievance Report", 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("System Generated via e-GramSeva AI Portal | Date: " + new Date().toLocaleDateString(), 14, 28);
+    doc.text("Village Office: <%= user.panchayatName %>", 14, 33);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 36, 283, 36); 
+
+   
+    const tableBody = Array.from(document.querySelectorAll("#complaintTableBody tr")).map(row => {
+        return [
+            row.cells[0].querySelector('b').innerText, // Citizen Name
+            row.cells[1].innerText.split('🤖')[0].trim(), // Category
+            row.cells[1].querySelector('.ai-badge').innerText.replace('🤖 AI: ', ''), // Priority
+            row.cells[3] ? row.cells[3].innerText : '-', // Date
+            row.cells[5].innerText.trim() // Status 
+        ];
+    });
+
+    // 3. AutoTable Configuration 
+    doc.autoTable({
+        startY: 42,
+        head: [['Resident Name', 'Complaint Category', 'AI Priority', 'Submission Date', 'Current Status']],
+        body: tableBody,
+        theme: 'striped', 
+        headStyles: { 
+            fillColor: [26, 116, 49], 
+            textColor: [255, 255, 255],
+            fontSize: 10,
+            halign: 'center'
+        },
+        bodyStyles: { 
+            fontSize: 9, 
+            cellPadding: 4,
+            textColor: [50, 50, 50] 
+        },
+        columnStyles: {
+            0: { cellWidth: 50 },
+            1: { cellWidth: 50 },
+            2: { halign: 'center', fontStyle: 'bold' },
+            3: { halign: 'center' },
+            4: { halign: 'center', fontStyle: 'bold' }
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        },
+        margin: { left: 14, right: 14 }
+    });
+
+    // 4. Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text('Page ' + i + ' of ' + pageCount, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
+        doc.text('This is an official document of <%= user.panchayatName %> Office.', 14, doc.internal.pageSize.height - 10);
     }
+
+    // 5. Final Download
+    doc.save("<%= user.panchayatName %>_Official_Report.pdf");
+}
 </script>
 </body>
 </html>
